@@ -1,5 +1,5 @@
 # Dockerfile for backend
-FROM python:3.10
+FROM python:3.13-slim
 
 # 作業ディレクトリを設定
 WORKDIR /app
