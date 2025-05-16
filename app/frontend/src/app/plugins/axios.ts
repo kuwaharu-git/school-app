@@ -17,6 +17,17 @@ axios_instance.interceptors.request.use(
 
 axios_instance.interceptors.response.use(
   function (response) {
+    // ここでAPIレスポンスにis_initial_passwordが含まれていたらリダイレクト
+    if (
+      response.data &&
+      typeof response.data.is_initial_password !== "undefined" &&
+      response.data.is_initial_password === true &&
+      typeof window !== "undefined" &&
+      window.location.pathname !== "/change-password"
+    ) {
+      window.location.href = "/change-password";
+      return Promise.reject(new Error("初期パスワードのためリダイレクト"));
+    }
     return response;
   },
   function (error) {
