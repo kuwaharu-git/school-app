@@ -21,7 +21,8 @@ class TestView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        return Response({"message": "Hello, world!"})
+        user = request.user
+        return Response({"message": f"Hello, {user.username}"})
 
 
 class LoginView(APIView):
