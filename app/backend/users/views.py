@@ -40,8 +40,6 @@ class LoginView(APIView):
         serializer.is_valid(raise_exception=True)
         access = serializer.validated_data.get("access", None)
         refresh = serializer.validated_data.get("refresh", None)
-        user = serializer.user
-        is_initial_password = getattr(user, "is_initial_password", False)
         if access:
             response = Response(status=status.HTTP_200_OK)
             max_age = settings.COOKIE_TIME
@@ -50,12 +48,6 @@ class LoginView(APIView):
             )
             response.set_cookie(
                 "refresh", refresh, httponly=True, max_age=max_age
-            )
-            response.set_cookie(
-                "is_initial_password",
-                is_initial_password,
-                httponly=True,
-                max_age=max_age,
             )
             return response
         return Response(
