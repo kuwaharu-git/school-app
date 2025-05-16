@@ -22,7 +22,12 @@ class TestView(APIView):
 
     def get(self, request):
         user = request.user
-        return Response({"message": f"Hello, {user.username}"})
+        return Response(
+            {
+                "message": f"Hello, {user.username}",
+                "is_initial_password": user.is_initial_password,
+            }
+        )
 
 
 class LoginView(APIView):
