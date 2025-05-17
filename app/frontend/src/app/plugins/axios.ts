@@ -5,7 +5,7 @@ const axios_instance = axios.create({
     "Content-Type": "application/json",
   },
 });
- 
+
 axios_instance.interceptors.request.use(
   function (config) {
     return config;
@@ -19,34 +19,31 @@ axios_instance.interceptors.response.use(
   function (response) {
     return response;
   },
-  function (error) {
+  async function (error) {
     const originalConfig = error.config;
+
     if (
       error.response &&
       error.response.status === 401 &&
       !originalConfig.retry
     ) {
-    // 認証エラーの場合は、リフレッシュトークンを使ってリトライ
-    originalConfig.retry = true;
-    // 以下の場合はリトライしない
-    // ログイン処理とユーザ作成申請処理
-    if (originalConfig.url === "api/users/login" || originalConfig.url === "api/users/request_user") {
-      return Promise.reject(error);
-    }
-    return axios_instance
-      .post("/api/users/retry", { refresh: "" })
-      .then((response) => {
-        return axios_instance(originalConfig);
-      })
-      .catch(function (error) {
+      originalConfig.retry = true;
+
+      // ログイン処理はリトライしない
+      if (originalConfig.url === "api/users/login") {
         return Promise.reject(error);
-      });
-    } else if (error.response && error.response.status !== 422) {
-      // 認証エラーまたは業務エラー以外の場合は、適切な画面に遷移
-      window.location.href = "/login";
-    } else {
-      return Promise.reject(error);
+      }
+
+      try {
+        await axios_instance.post("/api/users/retry", {});
+        return axios_instance(originalConfig); // ← 元のリクエストを再送
+      } catch (refreshError) {
+        window.location.href = "/login";
+        return Promise.reject(refreshError);
+      }
     }
+
+    return Promise.reject(error); // それ以外のエラーはそのまま
   }
 );
 
