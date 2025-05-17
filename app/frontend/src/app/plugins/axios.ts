@@ -25,7 +25,8 @@ axios_instance.interceptors.response.use(
     if (
       error.response &&
       error.response.status === 401 &&
-      !originalConfig.retry
+      !originalConfig.retry &&
+      originalConfig.url !== "/api/users/retry"
     ) {
       originalConfig.retry = true;
 
