@@ -16,6 +16,8 @@ export function RegisterForm() {
   const [studentId, setStudentId] = useState("")
   const [username, setUsername] = useState("")
   const [agreedToTerms, setAgreedToTerms] = useState(false)
+  const [error, setError] = useState("")
+  const [isSuccess, setIsSuccess] = useState(false)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,12 +34,12 @@ export function RegisterForm() {
         agreed_to_terms: agreedToTerms,
       })
       .then((response) => {
-        console.log("ユーザ作成成功:", response.data)
-        alert("ユーザ作成申請が完了しました")
+        setIsSuccess(true)
+        setError("")
       })
       .catch((error) => {
-        console.error("ユーザ作成エラー:", error)
-        alert(error.response?.data?.[0] || "ユーザ作成に失敗しました")
+        setIsSuccess(false)
+        setError(error.response?.data?.[0] || "ユーザ作成に失敗しました")
       })
   }
 
@@ -47,6 +49,20 @@ export function RegisterForm() {
         <CardTitle className="text-2xl font-bold text-center">新規ユーザ作成</CardTitle>
         <CardDescription className="text-center">必要情報を入力して申請してください</CardDescription>
       </CardHeader>
+      {error && (
+        <div className="text-red-500 text-center text-sm">
+          {error}
+        </div>
+      )}
+      {isSuccess && (
+        <div className="text-green-500 text-center text-sm">
+          ユーザ作成申請が完了しました。<br />
+          申請が承認されるまでお待ちください。
+          <br />
+          承認後、学校メールアドレスに通知が届きます。
+          <br />
+        </div>
+      )}
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
           <div className="space-y-2">
