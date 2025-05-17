@@ -67,21 +67,30 @@ class RetryView(APIView):
     permission_classes = []
 
     def post(self, request):
-        request.data["refresh"] = request.COOKIES.get("refresh")
-        serializer = TokenRefreshSerializer(data=request.data)
+        refresh = request.COOKIES.get("refresh")
+        if not refresh:
+            return Response(
+                {"errMsg": "リフレッシュトークンが存在しません"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        serializer = TokenRefreshSerializer(data={"refresh": refresh})
         serializer.is_valid(raise_exception=True)
         access = serializer.validated_data.get("access", None)
-        refresh = serializer.validated_data.get("refresh", None)
+        new_refresh = serializer.validated_data.get("refresh", None)
+
         if access:
             response = Response(status=status.HTTP_200_OK)
             max_age = settings.COOKIE_TIME
             response.set_cookie(
                 "access", access, httponly=True, max_age=max_age
             )
-            response.set_cookie(
-                "refresh", refresh, httponly=True, max_age=max_age
-            )
+            if new_refresh:
+                response.set_cookie(
+                    "refresh", new_refresh, httponly=True, max_age=max_age
+                )
             return response
+
         return Response(
             {"errMsg": "ユーザーの認証に失敗しました"},
             status=status.HTTP_401_UNAUTHORIZED,
@@ -128,7 +137,7 @@ class RequestUserView(APIView):
     ユーザー登録のリクエスト処理
     """
 
-    authentication_classes = []
+    authentication_classes = [JWTAuthentication]
     permission_classes = []
 
     def post(self, request):
