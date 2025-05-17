@@ -6,7 +6,7 @@ export default function Page() {
   const [text, setText] = useState("");
 
   useEffect(() => {
-    axios("/api/users/test")
+    axios.get("/api/users/test")
       .then((res) => {
         setText(res.data.message);
       })
