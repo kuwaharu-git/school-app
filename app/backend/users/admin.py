@@ -1,5 +1,5 @@
 from django.contrib import admin
-from users.models import User
+from users.models import User, RequestUser
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 
@@ -49,5 +49,15 @@ class UserAdmin(BaseUserAdmin):
         ),
     )
 
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        try:
+            request_user = RequestUser.objects.get(student_id=obj.student_id)
+            request_user.is_created = True
+            request_user.save()
+        except RequestUser.DoesNotExist:
+            pass
+
 
 admin.site.register(User, UserAdmin)
+admin.site.register(RequestUser)
