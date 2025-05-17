@@ -40,8 +40,8 @@ axios_instance.interceptors.response.use(
     // 認証エラーの場合は、リフレッシュトークンを使ってリトライ
     originalConfig.retry = true;
     // 以下の場合はリトライしない
-    // ログイン処理の場合
-    if (originalConfig.url === "api/users/login") {
+    // ログイン処理とユーザ作成申請処理
+    if (originalConfig.url === "api/users/login" || originalConfig.url === "api/users/request_user") {
       return Promise.reject(error);
     }
     return axios_instance
