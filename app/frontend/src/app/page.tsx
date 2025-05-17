@@ -19,6 +19,21 @@ export default function Page() {
     <div>
       <h1 className="text-2xl font-bold">Hello, Next.js!</h1>
       <p>{text}</p>
+      <button
+        className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+        onClick={() => {
+          axios
+            .post("/api/users/logout")
+            .then((res) => {
+              window.location.href = "/login";
+            })
+            .catch((error) => {
+              console.error("ログアウト失敗:", error);
+            });
+        }}
+      >
+        ログアウト
+      </button>
     </div>
   );
 }
