@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from django.db.models import F, Value, Sum
 from django.db.models.functions import Coalesce
-from .models import User
+from .models import User, RequestUser
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
 from users.exception import BusinessException
@@ -13,6 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from users.serializers import (
     CustomTokenObtainPairSerializer,
+    RequestUserSerializer,
 )
 
 
@@ -120,3 +121,37 @@ class ChangePasswordView(APIView):
         user.is_initial_password = False
         user.save()
         return Response(status=status.HTTP_200_OK)
+
+
+class RequestUserView(APIView):
+    """
+    ユーザー登録のリクエスト処理
+    """
+
+    authentication_classes = []
+    permission_classes = []
+
+    def post(self, request):
+        serializer = RequestUserSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        student_id = serializer.validated_data.get("student_id")
+        username = serializer.validated_data.get("username")
+        agreed_to_terms = serializer.validated_data.get("agreed_to_terms")
+        if not student_id or not username:
+            raise BusinessException("student_idまたはusernameが未入力です")
+        if RequestUser.objects.filter(student_id=student_id).exists():
+            raise BusinessException("すでにリクエスト済みです")
+        if User.objects.filter(student_id=student_id).exists():
+            raise BusinessException("すでにユーザーが存在します")
+        if RequestUser.objects.filter(username=username).exists():
+            raise BusinessException("すでに使われているユーザー名です")
+        if User.objects.filter(username=username).exists():
+            raise BusinessException("すでに使われているユーザー名です")
+        request_user = RequestUser.objects.create(
+            student_id=student_id,
+            username=username,
+            is_created=False,
+            agreed_to_terms=agreed_to_terms,
+        )
+        request_user.save()
+        return Response(status=status.HTTP_201_CREATED)
