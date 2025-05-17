@@ -22,7 +22,7 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    id = models.BigAutoField(primary_key=True)  # 明示的に書くなら
+    id = models.BigAutoField(primary_key=True)
     school_id = models.CharField(max_length=50, unique=True, null=False)
     username = models.CharField(max_length=150, unique=True, null=False)
     is_initial_password = models.BooleanField(default=True)
@@ -39,6 +39,18 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = "school_id"  # 認証に使うフィールド
     REQUIRED_FIELDS = ["username"]  # createsuperuserで追加入力を求められる
+
+    def __str__(self):
+        return self.username
+
+
+class RequestUser(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    school_id = models.CharField(max_length=50, unique=True, null=False)
+    username = models.CharField(max_length=150, unique=True, null=False)
+    request_at = models.DateTimeField(auto_now_add=True)
+    is_created = models.BooleanField(default=False)
+    agreed_to_terms = models.BooleanField(default=False)
 
     def __str__(self):
         return self.username
