@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label"
 import axios from "../../plugins/axios";
 
 type FormData = {
-    school_id: string;
+    student_id: string;
     password: string;
 };
 export function LoginForm() {
@@ -27,7 +27,7 @@ export function LoginForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const data: FormData = {
-    school_id: userId,
+    student_id: userId,
     password: password,
     };
     axios
@@ -99,7 +99,7 @@ export function LoginForm() {
           </Button>
           <div className="text-center text-sm">
             アカウントをお持ちでない方は
-            <Link href="/register" className="text-primary font-medium hover:underline ml-1">
+            <Link href="/register_request" className="text-primary font-medium hover:underline ml-1">
               新規ユーザ作成
             </Link>
           </div>
