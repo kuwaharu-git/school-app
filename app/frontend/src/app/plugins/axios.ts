@@ -52,7 +52,7 @@ axios_instance.interceptors.response.use(
       .catch(function (error) {
         return Promise.reject(error);
       });
-    } else if (error.response && error.response.status !== 422) {
+    } else if (error.response && error.response.status !== 422 && error.response.status !== 400) {
       // 認証エラーまたは業務エラー以外の場合は、適切な画面に遷移
       window.location.href = "/login";
     } else {
