@@ -9,7 +9,7 @@ export default function Page() {
   useEffect(() => {
     axios.get("/api/users/test")
       .then((res: AxiosResponse) => {
-        setText(res.data.message);
+        setText(`Hello, ${res.data.username}`);
       })
       .catch((error: AxiosError) => {
         setText("データの取得に失敗しました");
