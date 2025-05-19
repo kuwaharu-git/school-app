@@ -34,6 +34,7 @@ export function ChangePasswordForm() {
     confirmPassword?: string
   }>({})
   const [isSuccess, setIsSuccess] = useState(false)
+  const [is_initial_password, setIsInitialPassword] = useState(false)
 
   useEffect(() => {
     // ログイン状態の確認とユーザ名の取得
@@ -45,6 +46,7 @@ export function ChangePasswordForm() {
       .catch((error: AxiosError) => {
         console.error("Error fetching user data:", error)
       })
+    setIsInitialPassword(new URLSearchParams(window.location.search).get("is_initial_password") === "true")
   }, [])
 
   const validatePassword = (password: string): boolean => {
@@ -258,11 +260,19 @@ export function ChangePasswordForm() {
               "パスワードを変更する"
             )}
           </Button>
-          <div className="text-center text-sm">
-            <Link href="/" className="text-primary font-medium hover:underline">
-              キャンセルしてホームに戻る
-            </Link>
-          </div>
+          { is_initial_password && (
+            <p className="text-sm text-muted-foreground">
+              初回ログイン時はパスワードの変更が必要です
+            </p>
+          )}
+          { !is_initial_password && (
+            <div className="text-center text-sm">
+              <Link href="/" className="text-primary font-medium hover:underline">
+                キャンセルしてホームに戻る
+              </Link>
+            </div>
+          )}
+
         </CardFooter>
       </form>
     </Card>
