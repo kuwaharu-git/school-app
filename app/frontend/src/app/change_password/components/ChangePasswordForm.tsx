@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect, use } from "react"
 import Link from "next/link"
 import { Eye, EyeOff, AlertCircle, CheckCircle2, Loader2 } from "lucide-react"
 import { toast } from "sonner"
@@ -13,10 +13,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import customAxios from "../../plugins/customAxios";
-import { AxiosError } from "axios"
+import { AxiosResponse, AxiosError } from "axios"
 
 export function ChangePasswordForm() {
-
+  
+  const [username, setUsername] = useState("")
   const [currentPassword, setCurrentPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -33,6 +34,18 @@ export function ChangePasswordForm() {
     confirmPassword?: string
   }>({})
   const [isSuccess, setIsSuccess] = useState(false)
+
+  useEffect(() => {
+    // ログイン状態の確認とユーザ名の取得
+    customAxios
+      .get("/api/users/test")
+      .then((response: AxiosResponse) => {
+        setUsername(response.data.username)
+      })
+      .catch((error: AxiosError) => {
+        console.error("Error fetching user data:", error)
+      })
+  }, [])
 
   const validatePassword = (password: string): boolean => {
     // パスワードの最小長は8文字
@@ -136,6 +149,9 @@ export function ChangePasswordForm() {
     <Card className="w-full">
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl font-bold text-center">パスワード変更</CardTitle>
+        <CardDescription className="text-sm text-muted-foreground text-center">
+          {username}さん、パスワードを変更します
+        </CardDescription>
         <CardDescription className="text-center">新しいパスワードを設定してください</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
