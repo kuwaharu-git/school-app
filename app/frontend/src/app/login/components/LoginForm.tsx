@@ -37,7 +37,13 @@ export function LoginForm() {
         // ログイン成功時の処理
         console.log("ログイン成功:", response.data)
         // ここでリダイレクトやトークンの保存などを行う
-        router.push("/");
+        if (response.data.is_initial_password === true) {
+          // 初回ログイン時の処理
+          router.push("/change_password?is_initial_password=true");
+        } else {
+          router.push("/");
+        }
+        // それ以外の処理
       })
       .catch((error: AxiosError) => {
         // ログイン失敗時の処理
