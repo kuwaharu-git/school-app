@@ -47,9 +47,13 @@ class LoginView(APIView):
             response.set_cookie(
                 "access", access, httponly=True, max_age=max_age
             )
-            response.set_cookie(
-                "refresh", refresh, httponly=True, max_age=max_age
-            )
+            user = User.objects.get(student_id=request.data.get("student_id"))
+            is_initial_password = user.is_initial_password
+            response.data = {"is_initial_password": is_initial_password}
+            if is_initial_password is False:
+                response.set_cookie(
+                    "refresh", refresh, httponly=True, max_age=max_age
+                )
             return response
         return Response(
             {"errMsg": "ユーザーの認証に失敗しました"},
