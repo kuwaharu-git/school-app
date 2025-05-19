@@ -23,12 +23,7 @@ class TestView(APIView):
 
     def get(self, request):
         user = request.user
-        return Response(
-            {
-                "message": f"Hello, {user.username}",
-                "is_initial_password": user.is_initial_password,
-            }
-        )
+        return Response({"username": user.username})
 
 
 class LoginView(APIView):
@@ -52,9 +47,13 @@ class LoginView(APIView):
             response.set_cookie(
                 "access", access, httponly=True, max_age=max_age
             )
-            response.set_cookie(
-                "refresh", refresh, httponly=True, max_age=max_age
-            )
+            user = User.objects.get(student_id=request.data.get("student_id"))
+            is_initial_password = user.is_initial_password
+            response.data = {"is_initial_password": is_initial_password}
+            if is_initial_password is False:
+                response.set_cookie(
+                    "refresh", refresh, httponly=True, max_age=max_age
+                )
             return response
         return Response(
             {"errMsg": "ユーザーの認証に失敗しました"},
@@ -123,9 +122,18 @@ class ChangePasswordView(APIView):
                 {"errMsg": "認証が必要です"},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
-        password = request.data.get("password")
+        current_password = request.data.get("current-password")
+        password = request.data.get("new-password")
+        if not current_password:
+            raise BusinessException("現在のパスワードが未入力です")
+        if not user.check_password(current_password):
+            raise BusinessException("現在のパスワードが正しくありません")
         if not password:
             raise BusinessException("パスワードが未入力です")
+        if current_password == password:
+            raise BusinessException(
+                "新しいパスワードが現在のパスワードと同じです"
+            )
         user.set_password(password)
         user.is_initial_password = False
         user.save()
