@@ -123,9 +123,18 @@ class ChangePasswordView(APIView):
                 {"errMsg": "認証が必要です"},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
-        password = request.data.get("password")
+        current_password = request.data.get("current-password")
+        password = request.data.get("new-password")
+        if not current_password:
+            raise BusinessException("現在のパスワードが未入力です")
+        if not user.check_password(current_password):
+            raise BusinessException("現在のパスワードが正しくありません")
         if not password:
             raise BusinessException("パスワードが未入力です")
+        if current_password == password:
+            raise BusinessException(
+                "新しいパスワードが現在のパスワードと同じです"
+            )
         user.set_password(password)
         user.is_initial_password = False
         user.save()
