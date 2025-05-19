@@ -11,7 +11,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import axios from "../../plugins/axios";
+import type { AxiosResponse, AxiosError } from "axios";
+import customAxios from "../../plugins/customAxios";
 
 type FormData = {
     student_id: string;
@@ -30,15 +31,15 @@ export function LoginForm() {
     student_id: userId,
     password: password,
     };
-    axios
+    customAxios
       .post("api/users/login", data)
-      .then((response) => {
+      .then((response: AxiosResponse) => {
         // ログイン成功時の処理
         console.log("ログイン成功:", response.data)
         // ここでリダイレクトやトークンの保存などを行う
         router.push("/");
       })
-      .catch((error) => {
+      .catch((error: AxiosError) => {
         // ログイン失敗時の処理
         console.error("ログイン失敗:", error);
         setError("ユーザIDまたはパスワードが正しくありません。");

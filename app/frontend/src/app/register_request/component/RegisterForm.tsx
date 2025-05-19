@@ -10,7 +10,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import axios from "../../plugins/axios"
+import axios from "../../plugins/customAxios"
+import { AxiosError } from "axios"
 
 export function RegisterForm() {
   const [studentId, setStudentId] = useState("")
@@ -33,13 +34,20 @@ export function RegisterForm() {
         username: username,
         agreed_to_terms: agreedToTerms,
       })
-      .then((response) => {
+      .then(() => {
         setIsSuccess(true)
         setError("")
       })
-      .catch((error) => {
+      .catch((error: AxiosError) => {
         setIsSuccess(false)
-        setError(error.response?.data?.[0] || "ユーザ作成に失敗しました")
+        const data = error.response?.data
+        let message = "ユーザ作成に失敗しました"
+        if (Array.isArray(data) && data.length > 0) {
+          message = data[0]
+        } else if (typeof data === "object" && data !== null && "message" in data) {
+          message = (data as { message: string }).message
+        }
+        setError(message)
       })
   }
 
