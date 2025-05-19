@@ -11,6 +11,4 @@ class CustomJWTAuthentication(JWTAuthentication):
         )
         refresh = request.COOKIES.get("refresh")
         request.META["HTTP_REFRESH_TOKEN"] = refresh
-        is_initial_password = request.COOKIES.get("is_initial_password", True)
-        request.META["HTTP_IS_INITIAL_PASSWORD"] = is_initial_password
         return super().get_header(request)
