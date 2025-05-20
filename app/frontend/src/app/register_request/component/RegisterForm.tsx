@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label"
 import { CheckCircle2, Loader2 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Checkbox } from "@/components/ui/checkbox"
-import axios from "../../plugins/customAxios"
+import { customAxios } from "../../plugins/customAxios"
 import { AxiosError } from "axios"
 
 export function RegisterForm() {
@@ -33,7 +33,7 @@ export function RegisterForm() {
     console.log("新規ユーザ作成申請:", { studentId, username, agreedToTerms })
     setIsSubmitting(true)
     setError("")
-    axios
+    customAxios
       .post("/api/users/request_user", {
         student_id: studentId,
         username: username,

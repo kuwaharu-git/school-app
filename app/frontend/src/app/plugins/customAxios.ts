@@ -1,51 +1,55 @@
-import axios from "axios";
+import axios, { AxiosInstance } from "axios";
 
-const axios_instance = axios.create({
+function setupInterceptors(instance: AxiosInstance, redirectOn401: boolean) {
+  instance.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+      const originalConfig = error.config;
+
+      if (
+        error.response &&
+        error.response.status === 401 &&
+        !originalConfig.retry &&
+        originalConfig.url !== "/api/users/retry"
+      ) {
+        originalConfig.retry = true;
+
+        if (originalConfig.url === "api/users/login") {
+          return Promise.reject(error);
+        }
+
+        try {
+          await instance.post("/api/users/retry", {});
+          return instance(originalConfig);
+        } catch (refreshError) {
+          if (redirectOn401) {
+            window.location.href = "/login";
+          }
+          return Promise.reject(refreshError);
+        }
+      }
+
+      return Promise.reject(error);
+    }
+  );
+}
+
+// インスタンス作成
+const RedirectAxiosInstance = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-axios_instance.interceptors.request.use(
-  function (config) {
-    return config;
+const noRedirectAxiosInstance = axios.create({
+  headers: {
+    "Content-Type": "application/json",
   },
-  function (error) {
-    return Promise.reject(error);
-  }
-);
+});
 
-axios_instance.interceptors.response.use(
-  function (response) {
-    return response;
-  },
-  async function (error) {
-    const originalConfig = error.config;
+// インターセプターを設定
+setupInterceptors(RedirectAxiosInstance, true);
+setupInterceptors(noRedirectAxiosInstance, false);
 
-    if (
-      error.response &&
-      error.response.status === 401 &&
-      !originalConfig.retry &&
-      originalConfig.url !== "/api/users/retry"
-    ) {
-      originalConfig.retry = true;
-
-      // ログイン処理はリトライしない
-      if (originalConfig.url === "api/users/login") {
-        return Promise.reject(error);
-      }
-
-      try {
-        await axios_instance.post("/api/users/retry", {});
-        return axios_instance(originalConfig); // ← 元のリクエストを再送
-      } catch (refreshError) {
-        window.location.href = "/login";
-        return Promise.reject(refreshError);
-      }
-    }
-
-    return Promise.reject(error); // それ以外のエラーはそのまま
-  }
-);
-
-export default axios_instance;
+export { noRedirectAxiosInstance as noRedirectCustomAxios };
+export { RedirectAxiosInstance as customAxios };
