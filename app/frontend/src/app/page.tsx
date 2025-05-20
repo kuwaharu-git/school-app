@@ -1,41 +1,33 @@
 'use client';
 import React, { useEffect, useState } from "react";
-import { customAxios, noRedirectCustomAxios } from "./plugins/customAxios";
+import { noRedirectCustomAxios } from "./plugins/customAxios";
 import { AxiosResponse, AxiosError } from "axios";
+import { Header } from "../components/Header";
+import { Footer } from "../components/Footer";
 
 export default function Page() {
-  const [text, setText] = useState("");
+  const [username, setUsername] = useState("");
 
   useEffect(() => {
     noRedirectCustomAxios.get("/api/users/test")
       .then((res: AxiosResponse) => {
-        setText(`Hello, ${res.data.username}`);
+        setUsername(res.data.username);
       })
       .catch((error: AxiosError) => {
-        setText("データの取得に失敗しました");
-        console.error("データの取得に失敗:", error);
+        if (error.response?.status !== 401) {
+          console.error("APIリクエスト失敗:", error);
+        }
       });
   }, []);
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold">Hello, Next.js!</h1>
-      <p>{text}</p>
-      <button
-        className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-        onClick={() => {
-          customAxios
-            .post("/api/users/logout")
-            .then(() => {
-              window.location.href = "/login";
-            })
-            .catch((error: AxiosError) => {
-              console.error("ログアウト失敗:", error);
-            });
-        }}
-      >
-        ログアウト
-      </button>
-    </div>
+    <>
+      <Header username={username} />
+      <main className="container max-w-none flex flex-col items-center justify-center min-h-screen">
+        <h1 className="text-2xl font-bold">Welcome to the Student Portal System</h1>
+        <p className="mt-4 text-lg">This is a sample application.</p>
+      </main>
+      <Footer />
+    </>
   );
 }
