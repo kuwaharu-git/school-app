@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { CheckCircle2, Loader2 } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Checkbox } from "@/components/ui/checkbox"
 import axios from "../../plugins/customAxios"
 import { AxiosError } from "axios"
@@ -17,6 +19,7 @@ export function RegisterForm() {
   const [studentId, setStudentId] = useState("")
   const [username, setUsername] = useState("")
   const [agreedToTerms, setAgreedToTerms] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
   const [isSuccess, setIsSuccess] = useState(false)
 
@@ -28,6 +31,8 @@ export function RegisterForm() {
     }
     // 新規ユーザ作成処理をここに実装
     console.log("新規ユーザ作成申請:", { studentId, username, agreedToTerms })
+    setIsSubmitting(true)
+    setError("")
     axios
       .post("/api/users/request_user", {
         student_id: studentId,
@@ -49,6 +54,35 @@ export function RegisterForm() {
         }
         setError(message)
       })
+      .finally(() => {
+        setIsSubmitting(false)
+      })
+  }
+  // 成功時の表示
+  if (isSuccess) {
+    return (
+      <Card className="w-full">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold text-center">新規ユーザ作成申請完了</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Alert className="bg-green-50 border-green-200">
+            <CheckCircle2 className="h-4 w-4 text-green-600" />
+            <AlertDescription className="text-green-700">
+              ユーザ作成申請が完了しました。
+              <br />
+              承認されるまでお待ちください。
+              <br />
+              承認後、学校メールアドレスに通知が届きます。
+              <br />
+              <Link href="/login" className="text-primary hover:underline ml-1">
+                ログインページへ
+              </Link>
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
@@ -60,15 +94,6 @@ export function RegisterForm() {
       {error && (
         <div className="text-red-500 text-center text-sm">
           {error}
-        </div>
-      )}
-      {isSuccess && (
-        <div className="text-green-500 text-center text-sm">
-          ユーザ作成申請が完了しました。<br />
-          申請が承認されるまでお待ちください。
-          <br />
-          承認後、学校メールアドレスに通知が届きます。
-          <br />
         </div>
       )}
       <form onSubmit={handleSubmit}>
@@ -112,8 +137,15 @@ export function RegisterForm() {
           </div>
         </CardContent>
         <CardFooter className="flex flex-col space-y-4 mt-4">
-          <Button type="submit" className="w-full" disabled={!agreedToTerms}>
-            申請する
+          <Button type="submit" className="w-full" disabled={!agreedToTerms || isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                処理中...
+              </>
+            ) : (
+              "申請する"
+            )}
           </Button>
           <div className="text-center text-sm">
             すでにアカウントをお持ちの方は
