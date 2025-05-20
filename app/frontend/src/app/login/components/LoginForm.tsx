@@ -110,6 +110,12 @@ export function LoginForm() {
               新規ユーザ作成
             </Link>
           </div>
+          <div className="text-center text-sm">
+            または
+            <Link href="/" className="text-primary font-medium hover:underline ml-1">
+              ゲストログイン
+            </Link>
+          </div>
         </CardFooter>
       </form>
     </Card>
