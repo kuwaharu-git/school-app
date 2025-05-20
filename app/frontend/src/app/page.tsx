@@ -1,13 +1,13 @@
 'use client';
 import React, { useEffect, useState } from "react";
-import axios from "./plugins/customAxios";
+import { customAxios, noRedirectCustomAxios } from "./plugins/customAxios";
 import { AxiosResponse, AxiosError } from "axios";
 
 export default function Page() {
   const [text, setText] = useState("");
 
   useEffect(() => {
-    axios.get("/api/users/test")
+    noRedirectCustomAxios.get("/api/users/test")
       .then((res: AxiosResponse) => {
         setText(`Hello, ${res.data.username}`);
       })
@@ -24,7 +24,7 @@ export default function Page() {
       <button
         className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
         onClick={() => {
-          axios
+          customAxios
             .post("/api/users/logout")
             .then(() => {
               window.location.href = "/login";

@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import customAxios from "../../plugins/customAxios";
+import  { customAxios } from "../../plugins/customAxios";
 import { AxiosResponse, AxiosError } from "axios"
 
 export function ChangePasswordForm() {
