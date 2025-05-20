@@ -149,7 +149,7 @@ export function RegisterForm() {
           </Button>
           <div className="text-center text-sm">
             すでにアカウントをお持ちの方は
-            <Link href="/" className="text-primary font-medium hover:underline ml-1">
+            <Link href="/login" className="text-primary font-medium hover:underline ml-1">
               ログイン
             </Link>
           </div>
