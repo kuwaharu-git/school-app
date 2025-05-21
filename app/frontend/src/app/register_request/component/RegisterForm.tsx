@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label"
 import { CheckCircle2, Loader2 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Checkbox } from "@/components/ui/checkbox"
-import { customAxios } from "../../plugins/customAxios"
+import { customAxios } from "@/lib/customAxios"
 import { AxiosError } from "axios"
 
 export function RegisterForm() {

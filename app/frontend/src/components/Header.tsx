@@ -15,7 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { noRedirectCustomAxios } from "@/app/plugins/customAxios"
+import { noRedirectCustomAxios } from "@/lib/customAxios"
 
 interface HeaderProps {
   username: string
