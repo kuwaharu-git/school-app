@@ -25,6 +25,13 @@ jobs:
           node-version: 22
 
       # 依存関係をインストール
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: ./app/frontend/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('./app/frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
       - name: Install dependencies
         run: npm install
         working-directory: ./app/frontend
