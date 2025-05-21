@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import type { AxiosResponse, AxiosError } from "axios";
-import { customAxios } from "../../plugins/customAxios";
+import { customAxios } from "@/lib/customAxios";
 
 type FormData = {
     student_id: string;
