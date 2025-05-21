@@ -1,0 +1,35 @@
+name: Frontend CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build and Test Frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      # リポジトリをチェックアウト
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Node.js をセットアップ
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      # 依存関係をインストール
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./app/frontend
+
+      # Next.js のビルドを実行
+      - name: Build Next.js
+        run: npm run build
+        working-directory: ./app/frontend
