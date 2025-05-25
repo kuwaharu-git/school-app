@@ -71,11 +71,14 @@ class UserLanguages(models.Model):
         blank=True,
         null=True,
     )
-    other_framework_name = models.CharField(
+    other_language_name = models.CharField(
         max_length=50,
         blank=True,
         null=True,
     )
+
+    class Meta:
+        unique_together = (("user_id", "language_id"),)
 
     def __str__(self):
         return f"{self.user_id.username} - {self.language_id.language_name}"
@@ -97,6 +100,9 @@ class UserFrameworks(models.Model):
         blank=True,
         null=True,
     )
+
+    class Meta:
+        unique_together = (("user_id", "framework_id"),)
 
     def __str__(self):
         return f"{self.user_id.username} - {self.framework_id.framework_name}"
@@ -123,6 +129,9 @@ class UserSocialMedias(models.Model):
         blank=True,
         null=True,
     )
+
+    class Meta:
+        unique_together = (("user_id", "social_media_id"),)
 
     def __str__(self):
         return f"{self.user_id.username} - {self.social_media_id.social_media_name}"
