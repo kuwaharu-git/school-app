@@ -60,6 +60,9 @@ class SocialMedias(models.Model):
         null=False,
     )
 
+    def __str__(self):
+        return self.social_media_name
+
 
 class UserLanguages(models.Model):
     id = models.BigAutoField(primary_key=True)
