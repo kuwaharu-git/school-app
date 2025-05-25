@@ -61,6 +61,7 @@ class SocialMedias(models.Model):
 
 
 class UserLanguages(models.Model):
+    id = models.BigAutoField(primary_key=True)
     user_id = models.ForeignKey(
         "users.User",
         on_delete=models.CASCADE,
@@ -85,6 +86,7 @@ class UserLanguages(models.Model):
 
 
 class UserFrameworks(models.Model):
+    id = models.BigAutoField(primary_key=True)
     user_id = models.ForeignKey(
         "users.User",
         on_delete=models.CASCADE,
@@ -109,6 +111,7 @@ class UserFrameworks(models.Model):
 
 
 class UserSocialMedias(models.Model):
+    id = models.BigAutoField(primary_key=True)
     user_id = models.ForeignKey(
         "users.User",
         on_delete=models.CASCADE,
