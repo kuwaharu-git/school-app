@@ -1,8 +1,9 @@
 from django.db import models
+from django.db.models import UniqueConstraint
 
 
 class Profiles(models.Model):
-    user_id = models.OneToOneField(
+    user = models.OneToOneField(
         "users.User",
         on_delete=models.CASCADE,
         primary_key=True,
@@ -24,7 +25,7 @@ class Profiles(models.Model):
     )
 
     def __str__(self):
-        return f"Profile of {self.user_id.username}"
+        return f"Profile of {self.user.username}"
 
 
 class Languages(models.Model):
@@ -62,11 +63,11 @@ class SocialMedias(models.Model):
 
 class UserLanguages(models.Model):
     id = models.BigAutoField(primary_key=True)
-    user_id = models.ForeignKey(
+    user = models.ForeignKey(
         "users.User",
         on_delete=models.CASCADE,
     )
-    language_id = models.ForeignKey(
+    language = models.ForeignKey(
         Languages,
         on_delete=models.CASCADE,
         blank=True,
@@ -79,19 +80,29 @@ class UserLanguages(models.Model):
     )
 
     class Meta:
-        unique_together = (("user_id", "language_id"),)
+        constraints = [
+            UniqueConstraint(
+                fields=["user", "language"],
+                name="unique_user_language",
+            )
+        ]
 
     def __str__(self):
-        return f"{self.user_id.username} - {self.language_id.language_name}"
+        return_str = ""
+        if self.language:
+            return_str = f"{self.user} - {self.language.language_name}"
+        else:
+            return_str = f"{self.user} - {self.other_language_name}"
+        return return_str
 
 
 class UserFrameworks(models.Model):
     id = models.BigAutoField(primary_key=True)
-    user_id = models.ForeignKey(
+    user = models.ForeignKey(
         "users.User",
         on_delete=models.CASCADE,
     )
-    framework_id = models.ForeignKey(
+    framework = models.ForeignKey(
         Frameworks,
         on_delete=models.CASCADE,
         blank=True,
@@ -104,19 +115,29 @@ class UserFrameworks(models.Model):
     )
 
     class Meta:
-        unique_together = (("user_id", "framework_id"),)
+        constraints = [
+            UniqueConstraint(
+                fields=["user", "framework"],
+                name="unique_user_framework",
+            )
+        ]
 
     def __str__(self):
-        return f"{self.user_id.username} - {self.framework_id.framework_name}"
+        return_str = ""
+        if self.framework:
+            return_str = f"{self.user} - {self.framework.framework_name}"
+        else:
+            return_str = f"{self.user} - {self.other_framework_name}"
+        return return_str
 
 
 class UserSocialMedias(models.Model):
     id = models.BigAutoField(primary_key=True)
-    user_id = models.ForeignKey(
+    user = models.ForeignKey(
         "users.User",
         on_delete=models.CASCADE,
     )
-    social_media_id = models.ForeignKey(
+    social_media = models.ForeignKey(
         SocialMedias,
         on_delete=models.CASCADE,
         blank=True,
@@ -134,7 +155,17 @@ class UserSocialMedias(models.Model):
     )
 
     class Meta:
-        unique_together = (("user_id", "social_media_id"),)
+        constraints = [
+            UniqueConstraint(
+                fields=["user", "social_media"],
+                name="unique_user_social_media",
+            )
+        ]
 
     def __str__(self):
-        return f"{self.user_id.username} - {self.social_media_id.social_media_name}"
+        return_str = ""
+        if self.social_media:
+            return_str = f"{self.user} - {self.social_media.social_media_name}"
+        else:
+            return_str = f"{self.user} - {self.other_social_media_name}"
+        return return_str
