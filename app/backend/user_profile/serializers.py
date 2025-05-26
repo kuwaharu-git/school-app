@@ -24,13 +24,45 @@ class ProfilesSerializer(serializers.ModelSerializer):
 
 
 class LanguagesSerializer(serializers.ModelSerializer):
+    """
+    言語情報のシリアライザ
+    渡されたidとlanguage_nameの組み合わせが正しいかを検証する
+    もしidまたはlanguage_nameが指定されていない場合は、nullを返す(許容する)
+    """
+
+    id = serializers.IntegerField(required=False, allow_null=True)
+    language_name = serializers.CharField(required=False, allow_null=True)
+
     class Meta:
         model = Languages
         fields = ["id", "language_name"]
 
+    def validate(self, attrs):
+        id = attrs.get("id")
+        language_name = attrs.get("language_name")
+
+        # 両方がnullの場合は許容
+        if id is None and language_name is None:
+            return attrs
+
+        # 両方が指定されている場合に検証
+        if id is not None and language_name is not None:
+            try:
+                language = Languages.objects.get(id=id)
+                if language.language_name != language_name:
+                    raise serializers.ValidationError(
+                        "idとlanguage_nameの組み合わせが正しくありません。"
+                    )
+            except Languages.DoesNotExist:
+                raise serializers.ValidationError(
+                    "指定されたidの言語が存在しません。"
+                )
+
+        return attrs
+
 
 class UserLanguagesSerializer(serializers.ModelSerializer):
-    language = LanguagesSerializer()
+    language = LanguagesSerializer(allow_null=True)  # nullを許容
 
     class Meta:
         model = UserLanguages
@@ -38,13 +70,45 @@ class UserLanguagesSerializer(serializers.ModelSerializer):
 
 
 class FrameworksSerializer(serializers.ModelSerializer):
+    """
+    フレームワーク情報のシリアライザ
+    渡されたidとframework_nameの組み合わせが正しいかを検証する
+    もしidまたはframework_nameが指定されていない場合は、nullを返す(許容する)
+    """
+
+    id = serializers.IntegerField(required=False, allow_null=True)
+    framework_name = serializers.CharField(required=False, allow_null=True)
+
     class Meta:
         model = Frameworks
         fields = ["id", "framework_name"]
 
+    def validate(self, attrs):
+        id = attrs.get("id")
+        framework_name = attrs.get("framework_name")
+
+        # 両方がnullの場合は許容
+        if id is None and framework_name is None:
+            return attrs
+
+        # 両方が指定されている場合に検証
+        if id is not None and framework_name is not None:
+            try:
+                framework = Frameworks.objects.get(id=id)
+                if framework.framework_name != framework_name:
+                    raise serializers.ValidationError(
+                        "idとframework_nameの組み合わせが正しくありません。"
+                    )
+            except Frameworks.DoesNotExist:
+                raise serializers.ValidationError(
+                    "指定されたidのフレームワークが存在しません。"
+                )
+
+        return attrs
+
 
 class UserFrameworksSerializer(serializers.ModelSerializer):
-    framework = FrameworksSerializer()
+    framework = FrameworksSerializer(allow_null=True)  # nullを許容
 
     class Meta:
         model = UserFrameworks
@@ -52,13 +116,45 @@ class UserFrameworksSerializer(serializers.ModelSerializer):
 
 
 class SocialMediasSerializer(serializers.ModelSerializer):
+    """
+    ソーシャルメディア情報のシリアライザ
+    渡されたidとsocial_media_nameの組み合わせが正しいかを検証する
+    もしidまたはsocial_media_nameが指定されていない場合は、nullを返す(許容する)
+    """
+
+    id = serializers.IntegerField(required=False, allow_null=True)
+    social_media_name = serializers.CharField(required=False, allow_null=True)
+
     class Meta:
         model = SocialMedias
         fields = ["id", "social_media_name"]
 
+    def validate(self, attrs):
+        id = attrs.get("id")
+        social_media_name = attrs.get("social_media_name")
+
+        # 両方がnullの場合は許容
+        if id is None and social_media_name is None:
+            return attrs
+
+        # 両方が指定されている場合に検証
+        if id is not None and social_media_name is not None:
+            try:
+                social_media = SocialMedias.objects.get(id=id)
+                if social_media.social_media_name != social_media_name:
+                    raise serializers.ValidationError(
+                        "idとsocial_media_nameの組み合わせが正しくありません。"
+                    )
+            except SocialMedias.DoesNotExist:
+                raise serializers.ValidationError(
+                    "指定されたidのソーシャルメディアが存在しません。"
+                )
+
+        return attrs
+
 
 class UserSocialMediasSerializer(serializers.ModelSerializer):
-    social_media = SocialMediasSerializer()
+    social_media = SocialMediasSerializer(allow_null=True)  # nullを許容
 
     class Meta:
         model = UserSocialMedias
@@ -67,7 +163,7 @@ class UserSocialMediasSerializer(serializers.ModelSerializer):
 
 class AllProfilesSerializer(serializers.Serializer):
     user_info = UserInfoSerializer()
-    profiles = ProfilesSerializer()
+    profile = ProfilesSerializer()
     user_languages = UserLanguagesSerializer(many=True)
     user_frameworks = UserFrameworksSerializer(many=True)
     user_social_medias = UserSocialMediasSerializer(many=True)
