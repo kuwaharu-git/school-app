@@ -332,7 +332,9 @@ class LanguagesView(APIView):
     def get(self, request):
         languages = Languages.objects.all()
         serializer = LanguagesSerializer(languages, many=True)
-        return Response(serializer.data)
+        # 辞書型でデータを返す
+        data = {lang["id"]: lang["language_name"] for lang in serializer.data}
+        return Response(data)
 
 
 class FrameworksView(APIView):
@@ -345,7 +347,9 @@ class FrameworksView(APIView):
     def get(self, request):
         frameworks = Frameworks.objects.all()
         serializer = FrameworksSerializer(frameworks, many=True)
-        return Response(serializer.data)
+        # 辞書型でデータを返す
+        data = {fw["id"]: fw["framework_name"] for fw in serializer.data}
+        return Response(data)
 
 
 class SocialMediasView(APIView):
@@ -358,4 +362,6 @@ class SocialMediasView(APIView):
     def get(self, request):
         social_medias = SocialMedias.objects.all()
         serializer = SocialMediasSerializer(social_medias, many=True)
-        return Response(serializer.data)
+        # 辞書型でデータを返す
+        data = {sm["id"]: sm["social_media_name"] for sm in serializer.data}
+        return Response(data)
