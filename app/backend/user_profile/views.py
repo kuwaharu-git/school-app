@@ -24,10 +24,7 @@ class UserProfileView(APIView):
 
     def get(self, request, user_id=None):
         if user_id is None:
-            # エラーを返す
-            return Response(
-                {"error": "user_idが指定されていません。"}, status=400
-            )
+            user_id = request.user.id
         # ユーザープロフィールの取得
         user_info = User.objects.get(id=user_id)
         profile = Profiles.objects.get(user=user_info)
