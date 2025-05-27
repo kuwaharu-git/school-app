@@ -64,6 +64,19 @@ class LanguagesSerializer(serializers.ModelSerializer):
 class UserLanguagesSerializer(serializers.ModelSerializer):
     language = LanguagesSerializer(allow_null=True)  # nullを許容
 
+    def validate(self, attrs):
+        language = attrs.get("language")
+        other_language_name = attrs.get("other_language_name")
+        if other_language_name is not None and language is not None:
+            if (
+                language.get("id") is not None
+                or language.get("language_name") is not None
+            ):
+                raise serializers.ValidationError(
+                    "other_language_nameが指定されている場合、languageはnullでなければなりません。"
+                )
+        return attrs
+
     class Meta:
         model = UserLanguages
         fields = ["language", "other_language_name"]
@@ -110,6 +123,19 @@ class FrameworksSerializer(serializers.ModelSerializer):
 class UserFrameworksSerializer(serializers.ModelSerializer):
     framework = FrameworksSerializer(allow_null=True)  # nullを許容
 
+    def validate(self, attrs):
+        framework = attrs.get("framework")
+        other_framework_name = attrs.get("other_framework_name")
+        if other_framework_name is not None and framework is not None:
+            if (
+                framework.get("id") is not None
+                or framework.get("framework_name") is not None
+            ):
+                raise serializers.ValidationError(
+                    "other_framework_nameが指定されている場合、frameworkはnullでなければなりません。"
+                )
+        return attrs
+
     class Meta:
         model = UserFrameworks
         fields = ["framework", "other_framework_name"]
@@ -155,6 +181,19 @@ class SocialMediasSerializer(serializers.ModelSerializer):
 
 class UserSocialMediasSerializer(serializers.ModelSerializer):
     social_media = SocialMediasSerializer(allow_null=True)  # nullを許容
+
+    def validate(self, attrs):
+        social_media = attrs.get("social_media")
+        other_social_media_name = attrs.get("other_social_media_name")
+        if other_social_media_name is not None and social_media is not None:
+            if (
+                social_media.get("id") is not None
+                or social_media.get("social_media_name") is not None
+            ):
+                raise serializers.ValidationError(
+                    "other_social_media_nameが指定されている場合、social_mediaはnullでなければなりません。"
+                )
+        return attrs
 
     class Meta:
         model = UserSocialMedias
