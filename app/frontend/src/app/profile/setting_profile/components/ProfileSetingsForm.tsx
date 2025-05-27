@@ -58,7 +58,7 @@ export function ProfileSettingsForm() {
 
   // ユーザー情報の状態
   const [username, setUsername] = useState("")
-  const [bio, setBio] = useState("")
+  const [selfIntroduction, setSelfIntroduction] = useState("")
   const [portfolioUrl, setPortfolioUrl] = useState("")
   const [githubUrl, setGithubUrl] = useState("")
   const [selectedLanguages, setSelectedLanguages] = useState<UserLanguage[]>([])
@@ -78,16 +78,26 @@ export function ProfileSettingsForm() {
 
   // マスタデータの取得
   useEffect(() => {
-    customAxios.get("/api/users/test")
+    customAxios
+      .get("/api/user_profile/")
       .then((res: AxiosResponse) => {
-        setUsername(res.data.username);
+        const response_data = res.data
+        const userInfo = response_data.user_info
+        const profile = response_data.profile
+        const userLanguages = response_data.user_languages || []
+        const userFrameworks = response_data.user_frameworks || []
+        const userSocialMedias = response_data.user_social_medias || []
+
+        // ユーザー情報の設定
+        setUsername(userInfo.username || "")
+        setSelfIntroduction(profile.self_introduction || "")
+        setPortfolioUrl(profile.portfolio_url || "")
+        setGithubUrl(profile.github_url || "")
+        setSelectedLanguages(userLanguages)
+        setSelectedFrameworks(userFrameworks)
+        setSelectedSocialMedias(userSocialMedias)
       })
-      .catch((error: AxiosError) => {
-        if (error.response?.status !== 401) {
-          console.error("APIリクエスト失敗:", error);
-          // console.error("APIリクエスト失敗:", error);
-        }
-      });
+    // 言語、フレームワーク、SNSプラットフォームのデータを取得
     customAxios
       .get("/api/user_profile/languages")
       .then((res: AxiosResponse) => {
@@ -298,7 +308,7 @@ export function ProfileSettingsForm() {
 
     customAxios.post("/api/user_profile/", {
       profile: {
-        self_introduction: bio,
+        self_introduction: selfIntroduction,
         portfolio_url: portfolioUrl,
         github_url: githubUrl,
       },
@@ -368,8 +378,8 @@ export function ProfileSettingsForm() {
         <Textarea
           id="bio"
           placeholder="あなたについて簡単に紹介してください"
-          value={bio}
-          onChange={(e) => setBio(e.target.value)}
+          value={selfIntroduction}
+          onChange={(e) => setSelfIntroduction(e.target.value)}
           rows={4}
         />
       </div>
