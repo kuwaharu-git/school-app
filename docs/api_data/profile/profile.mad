@@ -62,3 +62,62 @@
 ## URL
 /api/profile/
 
+## request_data
+
+```
+{
+    "profiles": {
+        "self_introduction": "こんにちは、私はソフトウェアエンジニアです。",
+        "portfolio_url": "https://example.com/portfolio",
+        "github_url": "https://github.com/kuwaharu"
+    },
+    "user_languages": [
+        {
+            "language": {
+                "id": 4,
+                "language_name": "C#"
+            },
+            "other_language_name": null
+        },
+        {
+            "language": {
+                "id": 10,
+                "language_name": "C++"
+            },
+            "other_language_name": null
+        },
+        {
+            "language": null,
+            "other_language_name": "Rust"
+        }
+    ],
+    "user_frameworks": [
+        {
+            "framework": {
+                "id": 9,
+                "framework_name": "Angular"
+            },
+            "other_framework_name": null
+        },
+        {
+            "framework": null,
+            "other_framework_name": "Svelte"
+        }
+    ],
+    "user_social_medias": [
+        {
+            "social_media": {
+                "id": 2,
+                "social_media_name": "Twitter"
+            },
+            "other_social_media_name": null,
+            "url": "https://x.com/kuwaharu_it"
+        },
+        {
+            "social_media": null,
+            "other_social_media_name": "LinkedIn",
+            "url": "https://linkedin.com/in/kuwaharu"
+        }
+    ]
+}
+```
