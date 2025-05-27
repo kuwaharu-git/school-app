@@ -66,7 +66,7 @@
 
 ```
 {
-    "profiles": {
+    "profile": {
         "self_introduction": "こんにちは、私はソフトウェアエンジニアです。",
         "portfolio_url": "https://example.com/portfolio",
         "github_url": "https://github.com/kuwaharu"
