@@ -5,7 +5,7 @@ import type React from "react"
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-// import { toast } from "sonner"
+import { toast } from "sonner"
 import { Loader2, Trash2, ExternalLink, Globe } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -15,19 +15,19 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { noRedirectCustomAxios } from "@/lib/customAxios"
+import { customAxios } from "@/lib/customAxios"
 import { AxiosResponse, AxiosError } from "axios"
 
 interface LanguageInterface {
-  id: number
+  id: string
   language_name: string
 }
 interface FrameworkInterface {
-  id: number
+  id: string
   framework_name: string
 }
 interface SocialMediaInterface {
-  id: number
+  id: string
   social_media_name: string
 }
 type UserLanguage = {
@@ -44,13 +44,17 @@ type UserSocialMedia = {
   url: string
 }
 
+type AvailableData = {
+  [id: string]: string
+}
+
 export function ProfileSettingsForm() {
   const router = useRouter()
 
-  // マスタデータの状態
-  const [availableLanguages, setAvailableLanguages] = useState<LanguageInterface[]>([])
-  const [availableFrameworks, setAvailableFrameworks] = useState<FrameworkInterface[]>([])
-  const [availableSocialMedia, setAvailableSocialMedia] = useState<SocialMediaInterface[]>([])
+  // 利用かのうな選択肢のデータ
+  const [availableLanguages, setAvailableLanguages] = useState<AvailableData>({})
+  const [availableFrameworks, setAvailableFrameworks] = useState<AvailableData>({})
+  const [availableSocialMedias, setAvailableSocialMedias] = useState<AvailableData>({})
 
   // ユーザー情報の状態
   const [username, setUsername] = useState("")
@@ -59,20 +63,20 @@ export function ProfileSettingsForm() {
   const [githubUrl, setGithubUrl] = useState("")
   const [selectedLanguages, setSelectedLanguages] = useState<UserLanguage[]>([])
   const [selectedFrameworks, setSelectedFrameworks] = useState<UserFramework[]>([])
-  const [socialMedias, setSocialMedias] = useState<UserSocialMedia[]>([])
+  const [selectedSocialMedias, setSelectedSocialMedias] = useState<UserSocialMedia[]>([])
 
   // UI状態
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [languageInput, setLanguageInput] = useState("")
   const [frameworkInput, setFrameworkInput] = useState("")
-  const [socialPlatformInput, setSocialPlatformInput] = useState("")
-  const [socialUrlInput, setSocialUrlInput] = useState("")
-  const [customPlatformInput, setCustomPlatformInput] = useState("")
+  const [socialMediaInput, setSocialPlatformInput] = useState<string>("")
+  const [socialMediaUrlInput, setSocialUrlInput] = useState<string>("")
+  const [customPlatformInput, setCustomPlatformInput] = useState<string>("")
 
   // マスタデータの取得
   useEffect(() => {
-    noRedirectCustomAxios.get("/api/users/test")
+    customAxios.get("/api/users/test")
       .then((res: AxiosResponse) => {
         setUsername(res.data.username);
       })
@@ -82,7 +86,7 @@ export function ProfileSettingsForm() {
           // console.error("APIリクエスト失敗:", error);
         }
       });
-    noRedirectCustomAxios
+    customAxios
       .get("/api/user_profile/languages")
       .then((res: AxiosResponse) => {
         setAvailableLanguages(res.data)
@@ -91,7 +95,7 @@ export function ProfileSettingsForm() {
         console.error("言語の取得に失敗:", err)
         // setError(err.message)
       })
-    noRedirectCustomAxios
+    customAxios
       .get("/api/user_profile/frameworks")
       .then((res: AxiosResponse) => {
         setAvailableFrameworks(res.data)
@@ -100,10 +104,11 @@ export function ProfileSettingsForm() {
         console.error("フレームワークの取得に失敗:", err)
         // setError(err.message)
       })
-    noRedirectCustomAxios
+    customAxios
       .get("/api/user_profile/social_medias")
       .then((res: AxiosResponse) => {
-        setAvailableSocialMedia(res.data)
+        setAvailableSocialMedias(res.data)
+        console.log("取得したSNSプラットフォーム:", res.data)
       })
       .catch((err: AxiosError) => {
         console.error("SNSプラットフォームの取得に失敗:", err)
@@ -112,48 +117,75 @@ export function ProfileSettingsForm() {
   }, [])
 
   // SNSリンクの追加
-  // const addSocialLink = () => {
-  const addSocialLink = () => {}
-  //   if (!socialPlatformInput) return
-  //   if (!socialUrlInput) return
+  const addSocialMedia = () => {
+    if (!socialMediaInput) return
+    if (!socialMediaUrlInput) return
 
-  //   // URLのバリデーション
-  //   if (!isValidUrl(socialUrlInput)) {
-  //     toast.error("無効なURL", { description: "正しいURL形式で入力してください" })
-  //     return
-  //   }
+    // URLのバリデーション
+    if (!isValidUrl(socialMediaUrlInput)) {
+      toast.error("無効なURL", { description: "正しいURL形式で入力してください" })
+      return
+    }
+    
+    // プラットフォーム名の取得
+    let platformName = ""
+    if (socialMediaInput !== "other") {
+      platformName = availableSocialMedias[socialMediaInput] || ""
+    } else {
+      platformName = customPlatformInput.trim()
+      if (!platformName) {
+        toast.error("プラットフォーム名が必要", { description: "プラットフォーム名を入力してください" })
+        return
+      }
+    }
 
-  //   // プラットフォーム名の取得
-  //   let platformName = socialPlatformInput
-  //   if (socialPlatformInput === "other" && customPlatformInput) {
-  //     platformName = customPlatformInput
-  //   }
+    // 重複をチェック
+    const existingSocialMedia = selectedSocialMedias.find(
+      (socialMedia) =>
+        (socialMedia.social_media && socialMedia.social_media.social_media_name === platformName) ||
+        socialMedia.other_social_media_name === platformName ||
+        socialMedia.url === socialMediaUrlInput
+    )
 
-  //   // 既存のリンクをチェック
-  //   const existingLink = socialMedias.find(
-  //     (link) => link.platform === platformName || link.url.toLowerCase() === socialUrlInput.toLowerCase(),
-  //   )
+    if (existingSocialMedia) {
+      toast.error("重複", { description: "同じプラットフォームまたはURLが既に追加されています" })
+      return
+    }
+    
+    let newSocialMedia: UserSocialMedia 
+    if (socialMediaInput !== "other") {
+      newSocialMedia = {
+        social_media: {
+          id: socialMediaInput,
+          social_media_name: availableSocialMedias[socialMediaInput]
+        },
+        url: socialMediaUrlInput,
+        other_social_media_name: undefined,
+      }
+    } else {
+      newSocialMedia = {
+        social_media: undefined,
+        url: socialMediaUrlInput,
+        other_social_media_name: platformName,
+      }
+    }
 
-  //   if (existingLink) {
-  //     toast.error("重複するリンク", { description: "同じプラットフォームまたはURLが既に追加されています" })
-  //     return
-  //   }
 
-  //   // リンクを追加
-  //   setSocialMedias([...socialMedias, { platform: platformName, url: socialUrlInput }])
+    // リンクを追加
+    setSelectedSocialMedias([...selectedSocialMedias, newSocialMedia])
 
-  //   // 入力をリセット
-  //   setSocialPlatformInput("")
-  //   setSocialUrlInput("")
-  //   setCustomPlatformInput("")
-  // }
+    // 入力をリセット
+    setSocialPlatformInput("")
+    setSocialUrlInput("")
+    setCustomPlatformInput("")
+  }
 
   // SNSリンクの削除
-  // const removeSocialLink = (index: number) => {
-  //   const newLinks = [...socialMedias]
-  //   newLinks.splice(index, 1)
-  //   setSocialMedias(newLinks)
-  // }
+  const removeSocialLink = (index: number) => {
+    const newLinks = [...selectedSocialMedias]
+    newLinks.splice(index, 1)
+    setSelectedSocialMedias(newLinks)
+  }
 
   // 言語の追加
   // const addLanguage = () => {
@@ -326,38 +358,38 @@ export function ProfileSettingsForm() {
       {/* SNS URL */}
       <div className="space-y-4">
         <Label>SNS URL</Label>
-        {/* <div className="flex flex-wrap gap-2 mb-2">
-          {socialMedias.map((link, index) => (
+        <div className="flex flex-wrap gap-2 mb-2">
+          {selectedSocialMedias.map((socialMedia, index) => (
             <Badge key={index} variant="secondary" className="flex items-center gap-1">
               <Globe className="h-3 w-3 mr-1" />
-              {link.platform}: {link.url.replace(/^https?:\/\//, "").split("/")[0]}
+              {socialMedia.social_media?.social_media_name || socialMedia.other_social_media_name}: {socialMedia.url.replace(/^https?:\/\//, "").split("/")[0]}
               <button
                 type="button"
                 onClick={() => removeSocialLink(index)}
                 className="ml-1 rounded-full hover:bg-muted p-0.5"
               >
                 <Trash2 className="h-3 w-3" />
-                <span className="sr-only">{link.platform}を削除</span>
+                <span className="sr-only">{socialMedia.social_media?.social_media_name || socialMedia.other_social_media_name}を削除</span>
               </button>
             </Badge>
           ))}
-        </div> */}
+        </div>
         <div className="flex flex-col gap-4 sm:flex-row">
           <div className="flex-1">
-            <Select value={socialPlatformInput} onValueChange={setSocialPlatformInput}>
+            <Select value={socialMediaInput} onValueChange={setSocialPlatformInput}>
               <SelectTrigger>
                 <SelectValue placeholder="プラットフォームを選択" />
               </SelectTrigger>
               <SelectContent>
-                {availableSocialMedia.map((platform) => (
-                  <SelectItem key={platform.id} value={platform.id.toString()}>
-                    {platform.social_media_name}
+                {Object.entries(availableSocialMedias).map(([id, name]) => (
+                  <SelectItem key={id} value={id}>
+                    {name}
                   </SelectItem>
                 ))}
                 <SelectItem value="other">その他</SelectItem>
               </SelectContent>
             </Select>
-            {socialPlatformInput === "other" && (
+            {socialMediaInput === "other" && (
               <Input
                 className="mt-2"
                 placeholder="プラットフォーム名を入力"
@@ -370,15 +402,15 @@ export function ProfileSettingsForm() {
             <Input
               type="url"
               placeholder="https://example.com/username"
-              value={socialUrlInput}
+              value={socialMediaUrlInput}
               onChange={(e) => setSocialUrlInput(e.target.value)}
             />
             <Button
               type="button"
               variant="secondary"
-              onClick={addSocialLink}
+              onClick={addSocialMedia}
               disabled={
-                !socialPlatformInput || !socialUrlInput || (socialPlatformInput === "other" && !customPlatformInput)
+                !socialMediaInput || !socialMediaUrlInput || (socialMediaInput === "other" && !customPlatformInput)
               }
             >
               追加
@@ -411,12 +443,11 @@ export function ProfileSettingsForm() {
               <SelectValue placeholder="言語を選択" />
             </SelectTrigger>
             <SelectContent>
-              {availableLanguages
-                // .filter((lang) => !selectedLanguages.includes(lang))
-                .map((language) => (
-                  <SelectItem key={language.id} value={language.id.toString()}>
-                    {language.language_name}
-                  </SelectItem>
+                {Object.entries(availableLanguages).map(([id, name]) => (
+                  // すでにある言語は除外が必要
+                <SelectItem key={id} value={id}>
+                  {name}
+                </SelectItem>
                 ))}
               <SelectItem value="other">その他</SelectItem>
             </SelectContent>
@@ -464,13 +495,11 @@ export function ProfileSettingsForm() {
               <SelectValue placeholder="フレームワークを選択" />
             </SelectTrigger>
             <SelectContent>
-              {availableFrameworks
-                // .filter((fw) => !selectedFrameworks.includes(fw))
-                .map((framework) => (
-                  <SelectItem key={framework.id} value={framework.id.toString()}>
-                    {framework.framework_name}
-                  </SelectItem>
-                ))}
+              {Object.entries(availableFrameworks).map(([id, name]) => (
+                <SelectItem key={id} value={id}>
+                  {name}
+                </SelectItem>
+              ))}
               <SelectItem value="other">その他</SelectItem>
             </SelectContent>
           </Select>
