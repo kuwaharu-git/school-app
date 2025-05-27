@@ -62,19 +62,15 @@ class UserProfileView(APIView):
             # ユーザープロフィールの更新
             user = request.user
             request_data = request.data
-            # profileの更新
+            # リクエストデータの検証
+            errors = {}
+            # profile
             request_profile_data = request_data.get("profiles", {})
             # ProfilesSerializerを使用してリクエストデータを検証
             profile_serializer = ProfilesSerializer(data=request_profile_data)
             if not profile_serializer.is_valid():
-                return Response(profile_serializer.errors, status=400)
-
-            profile_data = profile_serializer.validated_data
-            Profiles.objects.update_or_create(
-                user=user,
-                defaults=profile_data,
-            )
-            # user_languagesの更新(なくなったものを削除し、新しいものを追加)
+                errors["profiles"] = profile_serializer.errors
+            # languages
             request_user_languages_data = request_data.get(
                 "user_languages", []
             )
@@ -83,7 +79,42 @@ class UserProfileView(APIView):
                 data=request_user_languages_data, many=True
             )
             if not user_languages_serializer.is_valid():
-                return Response(user_languages_serializer.errors, status=400)
+                errors["user_languages"] = user_languages_serializer.errors
+            # frameworks
+            request_user_frameworks_data = request_data.get(
+                "user_frameworks", []
+            )
+            # UserFrameworksSerializerを使用してリクエストデータを検証
+            user_frameworks_serializer = UserFrameworksSerializer(
+                data=request_user_frameworks_data, many=True
+            )
+            if not user_frameworks_serializer.is_valid():
+                errors["user_frameworks"] = user_frameworks_serializer.errors
+            # social_medias
+            request_user_social_medias_data = request_data.get(
+                "user_social_medias", []
+            )
+            # UserSocialMediasSerializerを使用してリクエストデータを検証
+            user_social_medias_serializer = UserSocialMediasSerializer(
+                data=request_user_social_medias_data, many=True
+            )
+            if not user_social_medias_serializer.is_valid():
+                errors["user_social_medias"] = (
+                    user_social_medias_serializer.errors
+                )
+
+            # エラーがあった場合は400エラーを返す
+            if errors:
+                return Response({"errors": errors}, status=400)
+
+            # すべてのシリアライザが有効な場合、データを保存
+            # profileの更新
+            profile_data = profile_serializer.validated_data
+            Profiles.objects.update_or_create(
+                user=user,
+                defaults=profile_data,
+            )
+            # user_languagesの更新(なくなったものを削除し、新しいものを追加)
             user_languages_data = user_languages_serializer.validated_data
             # 既存の言語を取得
             prev_user_languages = UserLanguages.objects.filter(user=user)
@@ -112,14 +143,6 @@ class UserProfileView(APIView):
                 language = lang_data.get("language")
                 language_id = language.get("id") if language else None
                 other_language_name = lang_data.get("other_language_name", "")
-                # 言語IDとother_language_nameが両方ともあった場合リクエストエラー
-                if language_id and other_language_name:
-                    return Response(
-                        {
-                            "error": "language_idとother_language_nameの両方を同時に指定することはできません。"
-                        },
-                        status=400,
-                    )
                 # 言語IDがあったばあい、すでにあれば何もしない、なければ新規追加
                 if language_id:
                     if not UserLanguages.objects.filter(
@@ -141,14 +164,6 @@ class UserProfileView(APIView):
                         )
 
             # user_frameworksの更新(同様に)
-            request_user_frameworks_data = request_data.get(
-                "user_frameworks", []
-            )
-            user_frameworks_serializer = UserFrameworksSerializer(
-                data=request_user_frameworks_data, many=True
-            )
-            if not user_frameworks_serializer.is_valid():
-                return Response(user_frameworks_serializer.errors, status=400)
             user_frameworks_data = user_frameworks_serializer.validated_data
             prev_user_frameworks = UserFrameworks.objects.filter(user=user)
             # 既存のフレームワークを削除(フレームワークIDで)
@@ -174,14 +189,6 @@ class UserProfileView(APIView):
                 framework = fw_data.get("framework")
                 framework_id = framework.get("id") if framework else None
                 other_framework_name = fw_data.get("other_framework_name", "")
-                # フレームワークIDとother_framework_nameが両方ともあった場合リクエストエラー
-                if framework_id and other_framework_name:
-                    return Response(
-                        {
-                            "error": "framework_idとother_framework_nameの両方を同時に指定することはできません。"
-                        },
-                        status=400,
-                    )
                 # フレームワークIDがあったばあい、すでにあれば何もしない、なければ新規追加
                 if framework_id:
                     if not UserFrameworks.objects.filter(
@@ -202,17 +209,6 @@ class UserProfileView(APIView):
                             other_framework_name=other_framework_name,
                         )
             # user_social_mediasの更新(同様に、すでにあるものはURLを更新し、ないものは新規追加)
-            request_user_social_medias_data = request_data.get(
-                "user_social_medias", []
-            )
-            # UserSocialMediasSerializerを使用してリクエストデータを検証
-            user_social_medias_serializer = UserSocialMediasSerializer(
-                data=request_user_social_medias_data, many=True
-            )
-            if not user_social_medias_serializer.is_valid():
-                return Response(
-                    user_social_medias_serializer.errors, status=400
-                )
             user_social_medias_data = (
                 user_social_medias_serializer.validated_data
             )
@@ -254,13 +250,6 @@ class UserProfileView(APIView):
                 other_social_media_name = social_media_data.get(
                     "other_social_media_name", ""
                 )
-                if social_media_id and other_social_media_name:
-                    return Response(
-                        {
-                            "error": "social_media_idとother_social_media_nameの両方を同時に指定することはできません。"
-                        },
-                        status=400,
-                    )
                 # ソーシャルメディアIDがあったばあい、すでにあればURLを更新、なければ新規追加
                 if social_media_id:
                     if not UserSocialMedias.objects.filter(
