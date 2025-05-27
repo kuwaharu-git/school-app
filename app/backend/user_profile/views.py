@@ -76,11 +76,11 @@ class UserProfileView(APIView):
             # リクエストデータの検証
             errors = {}
             # profile
-            request_profile_data = request_data.get("profiles", {})
+            request_profile_data = request_data.get("profile", {})
             # ProfilesSerializerを使用してリクエストデータを検証
             profile_serializer = ProfilesSerializer(data=request_profile_data)
             if not profile_serializer.is_valid():
-                errors["profiles"] = profile_serializer.errors
+                errors["profile"] = profile_serializer.errors
             # languages
             request_user_languages_data = request_data.get(
                 "user_languages", []
@@ -126,35 +126,44 @@ class UserProfileView(APIView):
                 defaults=profile_data,
             )
             # user_languagesの更新(なくなったものを削除し、新しいものを追加)
-            user_languages_data = user_languages_serializer.validated_data
+            request_user_languages_data = (
+                user_languages_serializer.validated_data
+            )
             # 既存の言語を取得
             prev_user_languages = UserLanguages.objects.filter(user=user)
-            # 既存の言語を削除(language_idで)
-            for user_language in prev_user_languages:
-                if user_language.language is not None:
-                    if user_language.language.id not in [
-                        lang.get("id")
-                        for lang in user_languages_data
-                        if lang.get("language") and lang["language"].get("id")
-                    ]:
-                        user_language.delete()
-            # 既存の言語を削除(other_language_nameで)
-            for user_language in prev_user_languages:
-                if (
-                    user_language.other_language_name
-                    not in [
-                        lang.get("other_language_name")
-                        for lang in user_languages_data
-                    ]
-                    and user_language.language is None
-                ):
-                    user_language.delete()
+            # リクエストに含まれる言語IDのリストを作成
+            request_user_language_ids = [
+                lang.get("language", {}).get("id")
+                for lang in request_user_languages_data
+                if lang.get("language")
+                and lang["language"].get("id") is not None
+            ]
+            # リクエストに含まれるother_language_nameのリストを作成
+            request_user_other_language_names = [
+                lang.get("other_language_name", "")
+                for lang in request_user_languages_data
+                if lang.get("other_language_name")
+            ]
+            # リクエストにない既存の言語を削除
+            for prev_user_language in prev_user_languages:
+                if prev_user_language.language is not None:
+                    if (
+                        prev_user_language.language.id
+                        not in request_user_language_ids
+                    ):
+                        prev_user_language.delete()
+                if prev_user_language.other_language_name:
+                    if (
+                        prev_user_language.other_language_name
+                        not in request_user_other_language_names
+                    ):
+                        prev_user_language.delete()
             # 新しい言語を追加
-            for lang_data in user_languages_data:
+            for lang_data in request_user_languages_data:
                 language = lang_data.get("language")
                 language_id = language.get("id") if language else None
                 other_language_name = lang_data.get("other_language_name", "")
-                # 言語IDがあったばあい、すでにあれば何もしない、なければ新規追加
+                # 言語IDがすでにあれば何もしない、なければ新規追加
                 if language_id:
                     if not UserLanguages.objects.filter(
                         user=user, language_id=language_id
@@ -164,7 +173,7 @@ class UserProfileView(APIView):
                             language_id=language_id,
                             other_language_name=other_language_name,
                         )
-                # other_language_nameがあったばあい、すでにあれば何もしない、なければ新規追加
+                # other_language_nameがすでにあれば何もしない、なければ新規追加
                 elif other_language_name:
                     if not UserLanguages.objects.filter(
                         user=user, other_language_name=other_language_name
@@ -175,32 +184,40 @@ class UserProfileView(APIView):
                         )
 
             # user_frameworksの更新(同様に)
-            user_frameworks_data = user_frameworks_serializer.validated_data
+            request_user_frameworks_data = (
+                user_frameworks_serializer.validated_data
+            )
             prev_user_frameworks = UserFrameworks.objects.filter(user=user)
-            # 既存のフレームワークを削除(フレームワークIDで)
+            # リクエストに含まれるフレームワークIDのリストを作成
+            request_user_framework_ids = [
+                fw.get("framework", {}).get("id")
+                for fw in request_user_frameworks_data
+                if fw.get("framework")
+                and fw["framework"].get("id") is not None
+            ]
+            # リクエストに含まれるother_framework_nameのリストを作成
+            request_user_other_framework_names = [
+                fw.get("other_framework_name", "")
+                for fw in request_user_frameworks_data
+                if fw.get("other_framework_name")
+            ]
+            # リクエストにない既存のフレームワークを削除
             for user_framework in prev_user_frameworks:
                 if user_framework.framework is not None:
-                    if user_framework.id not in [
-                        fw.get("id") for fw in user_frameworks_data
-                    ]:
+                    if user_framework.id not in request_user_framework_ids:
                         user_framework.delete()
-            # 既存のフレームワークを削除(other_framework_nameで)
-            for user_framework in prev_user_frameworks:
-                if (
-                    user_framework.other_framework_name
-                    not in [
-                        fw.get("other_framework_name")
-                        for fw in user_frameworks_data
-                    ]
-                    and user_framework.framework is None
-                ):
-                    user_framework.delete()
+                if user_framework.other_framework_name:
+                    if (
+                        user_framework.other_framework_name
+                        not in request_user_other_framework_names
+                    ):
+                        user_framework.delete()
             # 新しいフレームワークを追加
-            for fw_data in user_frameworks_data:
+            for fw_data in request_user_frameworks_data:
                 framework = fw_data.get("framework")
                 framework_id = framework.get("id") if framework else None
                 other_framework_name = fw_data.get("other_framework_name", "")
-                # フレームワークIDがあったばあい、すでにあれば何もしない、なければ新規追加
+                # フレームワークIDがすでにあれば何もしない、なければ新規追加
                 if framework_id:
                     if not UserFrameworks.objects.filter(
                         user=user, framework_id=framework_id
@@ -210,7 +227,7 @@ class UserProfileView(APIView):
                             framework_id=framework_id,
                             other_framework_name=other_framework_name,
                         )
-                # other_framework_nameがあったばあい、すでにあれば何もしない、なければ新規追加
+                # other_framework_nameがすでにあれば何もしない、なければ新規追加
                 elif other_framework_name:
                     if not UserFrameworks.objects.filter(
                         user=user, other_framework_name=other_framework_name
@@ -220,39 +237,43 @@ class UserProfileView(APIView):
                             other_framework_name=other_framework_name,
                         )
             # user_social_mediasの更新(同様に、すでにあるものはURLを更新し、ないものは新規追加)
-            user_social_medias_data = (
+            request_user_social_medias_data = (
                 user_social_medias_serializer.validated_data
             )
             # 既存のソーシャルメディアを取得
             prev_user_social_medias = UserSocialMedias.objects.filter(
                 user=user
             )
+            # リクエストに含まれるソーシャルメディアIDのリストを作成
+            request_user_social_media_ids = [
+                sm.get("social_media", {}).get("id")
+                for sm in request_user_social_medias_data
+                if sm.get("social_media")
+                and sm["social_media"].get("id") is not None
+            ]
+            # リクエストに含まれるother_social_media_nameのリストを作成
+            request_user_other_social_media_names = [
+                sm.get("other_social_media_name", "")
+                for sm in request_user_social_medias_data
+                if sm.get("other_social_media_name")
+            ]
             # 既存のソーシャルメディアを削除(ソーシャルメディアIDで)
             for user_social_media in prev_user_social_medias:
                 if user_social_media.social_media is not None:
-                    if user_social_media.social_media.id not in [
-                        sm["social_media"]["id"]
-                        for sm in user_social_medias_data
-                        if sm.get("social_media")
-                        and sm["social_media"].get("id") is not None
-                        if sm.get("social_media")
-                        and sm["social_media"].get("id") is not None
-                    ]:
+                    if (
+                        user_social_media.social_media.id
+                        not in request_user_social_media_ids
+                    ):
                         user_social_media.delete()
-            # 既存のソーシャルメディアを削除(other_social_media_nameで)
-            for user_social_media in prev_user_social_medias:
-                if (
-                    user_social_media.other_social_media_name
-                    not in [
-                        sm.get("other_social_media_name")
-                        for sm in user_social_medias_data
-                    ]
-                    and user_social_media.social_media is None
-                ):
-                    user_social_media.delete()
+                if user_social_media.other_social_media_name:
+                    if (
+                        user_social_media.other_social_media_name
+                        not in request_user_other_social_media_names
+                    ):
+                        user_social_media.delete()
 
             # 新しいソーシャルメディアを追加
-            for social_media_data in user_social_medias_data:
+            for social_media_data in request_user_social_medias_data:
                 # ソーシャルメディアのIDとother_social_media_nameが両方ともあった場合リクエストエラー
                 social_media = social_media_data.get("social_media")
                 social_media_id = (
@@ -261,7 +282,7 @@ class UserProfileView(APIView):
                 other_social_media_name = social_media_data.get(
                     "other_social_media_name", ""
                 )
-                # ソーシャルメディアIDがあったばあい、すでにあればURLを更新、なければ新規追加
+                # ソーシャルメディアIDがすでにあればURLを更新、なければ新規追加
                 if social_media_id:
                     if not UserSocialMedias.objects.filter(
                         user=user, social_media_id=social_media_id
@@ -278,7 +299,7 @@ class UserProfileView(APIView):
                         )
                         user_social_media.url = social_media_data.get("url")
                         user_social_media.save()
-                # other_social_media_nameがあったばあい、すでにあればURLを更新、なければ新規追加
+                # other_social_media_nameがすでにあればURLを更新、なければ新規追加
                 elif other_social_media_name:
                     if not UserSocialMedias.objects.filter(
                         user=user,
