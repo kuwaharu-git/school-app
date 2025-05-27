@@ -7,9 +7,9 @@ urlpatterns = [
     path(
         "<int:user_id>/", views.UserProfileView.as_view(), name="user_profile"
     ),
-    path("language", views.LanguagesView.as_view(), name="languages"),
-    path("framework", views.FrameworksView.as_view(), name="frameworks"),
+    path("languages/", views.LanguagesView.as_view(), name="languages"),
+    path("frameworks/", views.FrameworksView.as_view(), name="frameworks"),
     path(
-        "social_media", views.SocialMediasView.as_view(), name="social_media"
+        "social_medias/", views.SocialMediasView.as_view(), name="social_media"
     ),
 ]
