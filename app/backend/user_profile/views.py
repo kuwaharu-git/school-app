@@ -104,7 +104,7 @@ class UserProfileView(APIView):
                         lang.get("other_language_name")
                         for lang in user_languages_data
                     ]
-                    and user_language.language is not None
+                    and user_language.language is None
                 ):
                     user_language.delete()
             # 新しい言語を追加
@@ -166,7 +166,7 @@ class UserProfileView(APIView):
                         fw.get("other_framework_name")
                         for fw in user_frameworks_data
                     ]
-                    and user_framework.framework is not None
+                    and user_framework.framework is None
                 ):
                     user_framework.delete()
             # 新しいフレームワークを追加
@@ -240,7 +240,7 @@ class UserProfileView(APIView):
                         sm.get("other_social_media_name")
                         for sm in user_social_medias_data
                     ]
-                    and user_social_media.social_media is not None
+                    and user_social_media.social_media is None
                 ):
                     user_social_media.delete()
 
