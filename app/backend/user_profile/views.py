@@ -8,8 +8,19 @@ from .serializers import (
     UserFrameworksSerializer,
     UserSocialMediasSerializer,
     AllProfilesSerializer,
+    LanguagesSerializer,
+    FrameworksSerializer,
+    SocialMediasSerializer,
 )
-from .models import Profiles, UserLanguages, UserFrameworks, UserSocialMedias
+from .models import (
+    Profiles,
+    UserLanguages,
+    UserFrameworks,
+    UserSocialMedias,
+    Languages,
+    Frameworks,
+    SocialMedias,
+)
 from users.models import User
 from django.db import transaction
 
@@ -288,3 +299,42 @@ class UserProfileView(APIView):
             return Response(
                 {"message": "プロフィールが更新されました。"}, status=200
             )
+
+
+class LanguagesView(APIView):
+    """
+    マスタ言語情報を取得
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        languages = Languages.objects.all()
+        serializer = LanguagesSerializer(languages, many=True)
+        return Response(serializer.data)
+
+
+class FrameworksView(APIView):
+    """
+    マスタフレームワーク情報を取得
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        frameworks = Frameworks.objects.all()
+        serializer = FrameworksSerializer(frameworks, many=True)
+        return Response(serializer.data)
+
+
+class SocialMediasView(APIView):
+    """
+    マスタソーシャルメディア情報を取得
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        social_medias = SocialMedias.objects.all()
+        serializer = SocialMediasSerializer(social_medias, many=True)
+        return Response(serializer.data)
