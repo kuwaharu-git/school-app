@@ -19,27 +19,27 @@ import { customAxios } from "@/lib/customAxios"
 import { AxiosResponse, AxiosError } from "axios"
 
 interface LanguageInterface {
-  id: string
+  id: number
   language_name: string
 }
 interface FrameworkInterface {
-  id: string
+  id: number
   framework_name: string
 }
 interface SocialMediaInterface {
-  id: string
+  id: number
   social_media_name: string
 }
 type UserLanguage = {
-  language?: LanguageInterface,
+  language: LanguageInterface | null,
   other_language_name?: string
 }
 type UserFramework = {
-  framework?: FrameworkInterface,
+  framework: FrameworkInterface | null,
   other_framework_name?: string
 }
 type UserSocialMedia = {
-  social_media?: SocialMediaInterface,
+  social_media: SocialMediaInterface | null,
   other_social_media_name?: string,
   url: string
 }
@@ -73,6 +73,8 @@ export function ProfileSettingsForm() {
   const [socialMediaInput, setSocialPlatformInput] = useState<string>("")
   const [socialMediaUrlInput, setSocialUrlInput] = useState<string>("")
   const [customPlatformInput, setCustomPlatformInput] = useState<string>("")
+  const [customLanguageInput, setCustomLanguageInput] = useState<string>("")
+  const [customFrameworkInput, setCustomFrameworkInput] = useState<string>("")
 
   // マスタデータの取得
   useEffect(() => {
@@ -156,7 +158,7 @@ export function ProfileSettingsForm() {
     if (socialMediaInput !== "other") {
       newSocialMedia = {
         social_media: {
-          id: socialMediaInput,
+          id: Number(socialMediaInput),
           social_media_name: availableSocialMedias[socialMediaInput]
         },
         url: socialMediaUrlInput,
@@ -164,7 +166,7 @@ export function ProfileSettingsForm() {
       }
     } else {
       newSocialMedia = {
-        social_media: undefined,
+        social_media: null,
         url: socialMediaUrlInput,
         other_social_media_name: platformName,
       }
@@ -182,104 +184,145 @@ export function ProfileSettingsForm() {
 
   // SNSリンクの削除
   const removeSocialLink = (index: number) => {
-    const newLinks = [...selectedSocialMedias]
-    newLinks.splice(index, 1)
-    setSelectedSocialMedias(newLinks)
+    setSelectedSocialMedias(selectedSocialMedias.filter((_, i) => i !== index))
   }
 
   // 言語の追加
-  // const addLanguage = () => {
-  const addLanguage = () => {}
-  //   if (!languageInput.trim()) return
+  const addLanguage = () => {
+    if (!languageInput.trim()) return
 
-  //   if (!selectedLanguages.includes(languageInput)) {
-  //     setSelectedLanguages([...selectedLanguages, languageInput])
-  //     setLanguageInput("")
-  //   }
-  // }
+    // 重複チェック
+    const existingLanguage = selectedLanguages.find(
+      (lang) =>
+        (lang.language && lang.language.language_name === languageInput) ||
+        lang.other_language_name === languageInput
+    )
+    if (existingLanguage) {
+      toast.error("重複", { description: "同じ言語が既に追加されています" })
+      return
+    }
+
+    let languageName = ""
+    if (languageInput !== "other") {
+      languageName = availableLanguages[languageInput] || ""
+    } else {
+      languageName = customLanguageInput.trim()
+      if (!languageName) {
+        toast.error("言語名が必要", { description: "言語名を入力してください" })
+        return
+      }
+    }
+    // 新しい言語オブジェクトの作成
+    let newLanguage: UserLanguage
+    if (languageInput !== "other") {
+      newLanguage = {
+        language: {
+          id: Number(languageInput),
+          language_name: languageName,
+        },
+        other_language_name: undefined,
+      }
+    } else {
+      newLanguage = {
+        language: null,
+        other_language_name: languageName,
+      }
+    }
+
+    setSelectedLanguages([...selectedLanguages, newLanguage])
+    setLanguageInput("")
+    setCustomLanguageInput("")
+  }
 
   // 言語の削除
-  // const removeLanguage = (language: string) => {
-  //   setSelectedLanguages(selectedLanguages.filter((l) => l !== language))
-  // }
+  const removeLanguage = (index: number) => {
+    setSelectedLanguages(selectedLanguages.filter((_, i) => i !== index))
+  }
 
   // フレームワークの追加
-  // const addFramework = () => {
-  const addFramework = () => {}
-  //   if (!frameworkInput.trim()) return
+  const addFramework = () => {
+    if (!frameworkInput.trim()) return
 
-  //   if (!selectedFrameworks.includes(frameworkInput)) {
-  //     setSelectedFrameworks([...selectedFrameworks, frameworkInput])
-  //     setFrameworkInput("")
-  //   }
-  // }
+    // 重複チェック
+    const existingFramework = selectedFrameworks.find(
+      (fw) =>
+        (fw.framework && fw.framework.framework_name === frameworkInput) ||
+        fw.other_framework_name === frameworkInput
+    )
+    if (existingFramework) {
+      toast.error("重複", { description: "同じフレームワークが既に追加されています" })
+      return
+    }
+    let frameworkName = ""
+    if (frameworkInput !== "other") {
+      frameworkName = availableFrameworks[frameworkInput] || ""
+    }
+    else {
+      frameworkName = customFrameworkInput.trim()
+      if (!frameworkName) {
+        toast.error("フレームワーク名が必要", { description: "フレームワーク名を入力してください" })
+        return
+      }
+    }
+    // 新しいフレームワークオブジェクトの作成
+    let newFramework: UserFramework
+    if (frameworkInput !== "other") {
+      newFramework = {
+        framework: {
+          id: Number(frameworkInput),
+          framework_name: frameworkName,
+        },
+        other_framework_name: undefined,
+      }
+    }
+    else {
+      newFramework = {
+        framework: null,
+        other_framework_name: frameworkName,
+      }
+    }
+    setSelectedFrameworks([...selectedFrameworks, newFramework])
+    setFrameworkInput("")
+  }
 
   // フレームワークの削除
-  // const removeFramework = (framework: string) => {
-  //   setSelectedFrameworks(selectedFrameworks.filter((f) => f !== framework))
-  // }
+  const removeFramework = (index: number) => {
+    setSelectedFrameworks(selectedFrameworks.filter((_, i) => i !== index))
+  }
 
   // フォーム送信処理
-  const handleSubmit = () => {}
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault()
-  //   setError(null)
-  //   setIsSubmitting(true)
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+    setIsSubmitting(true)
 
-  //   try {
-  //     // URLのバリデーション
-  //     const urlFields = [
-  //       { name: "ポートフォリオURL", value: portfolioUrl },
-  //       { name: "GitHub URL", value: githubUrl },
-  //       ...socialMedias.map((link) => ({ name: `${link.platform} URL`, value: link.url })),
-  //     ]
+    customAxios.post("/api/user_profile/", {
+      profile: {
+        self_introduction: bio,
+        portfolio_url: portfolioUrl,
+        github_url: githubUrl,
+      },
+      user_languages: selectedLanguages,
+      user_frameworks: selectedFrameworks,
+      user_social_medias: selectedSocialMedias,
+    })
+    .then((res: AxiosResponse) => {
+      console.log("プロフィール更新成功:", res.data)
+      // 成功トースト表示
+      toast.success("プロフィールを更新しました")
+    })
+    .catch((err: AxiosError) => {
+      console.error("プロフィール更新失敗:", err)
+      setError(err.message)
+      toast.error("エラー", {
+        description: err.message || "プロフィールの更新に失敗しました",
+      })
+    })
+    .finally(() => {
+      setIsSubmitting(false)
+    })
+  }
 
-  //     for (const field of urlFields) {
-  //       if (field.value && !isValidUrl(field.value)) {
-  //         throw new Error(`${field.name}が正しい形式ではありません`)
-  //       }
-  //     }
-
-  //     // API呼び出しをシミュレート
-  //     await new Promise((resolve) => setTimeout(resolve, 1000))
-
-  //     // 成功トースト表示
-  //     toast.success("プロフィールを更新しました")
-
-      // 実際のアプリケーションでは、ここでAPIを呼び出してプロフィールを更新します
-      /*
-      const response = await fetch("/api/profile", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          bio,
-          portfolioUrl,
-          githubUrl,
-          socialLinks,
-          languages: selectedLanguages,
-          frameworks: selectedFrameworks,
-        }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || "プロフィールの更新に失敗しました");
-      }
-      */
-
-      // 成功後にダッシュボードにリダイレクト
-  //     router.push("/dashboard")
-  //   } catch (err) {
-  //     setError(err instanceof Error ? err.message : "プロフィールの更新に失敗しました")
-  //     toast.error("エラー", {
-  //       description: err instanceof Error ? err.message : "プロフィールの更新に失敗しました",
-  //     })
-  //   } finally {
-  //     setIsSubmitting(false)
-  //   }
-  // }
 
   // URLのバリデーション
   const isValidUrl = (url: string): boolean => {
@@ -422,21 +465,21 @@ export function ProfileSettingsForm() {
       {/* 使用言語 */}
       <div className="space-y-4">
         <Label>使用言語</Label>
-        {/* <div className="flex flex-wrap gap-2 mb-2">
-          {selectedLanguages.map((language) => (
-            <Badge key={language} variant="secondary" className="flex items-center gap-1">
-              {language}
+        <div className="flex flex-wrap gap-2 mb-2">
+          {selectedLanguages.map((language, index) => (
+            <Badge key={index} variant="secondary" className="flex items-center gap-1">
+              {language.language?.language_name || language.other_language_name}
               <button
                 type="button"
-                onClick={() => removeLanguage(language)}
+                onClick={() => removeLanguage(index)}
                 className="ml-1 rounded-full hover:bg-muted p-0.5"
               >
                 <Trash2 className="h-3 w-3" />
-                <span className="sr-only">{language}を削除</span>
+                <span className="sr-only">{language.language?.language_name || language.other_language_name}を削除</span>
               </button>
             </Badge>
           ))}
-        </div> */}
+        </div>
         <div className="flex gap-2">
           <Select value={languageInput} onValueChange={setLanguageInput}>
             <SelectTrigger className="flex-1">
@@ -456,8 +499,8 @@ export function ProfileSettingsForm() {
             <div className="flex gap-2 flex-1">
               <Input
                 placeholder="言語名を入力"
-                value={languageInput === "other" ? "" : languageInput}
-                onChange={(e) => setLanguageInput(e.target.value)}
+                value={customLanguageInput === "other" ? "" : customLanguageInput}
+                onChange={(e) => setCustomLanguageInput(e.target.value)}
               />
               <Button type="button" variant="secondary" onClick={addLanguage}>
                 追加
@@ -474,21 +517,21 @@ export function ProfileSettingsForm() {
       {/* 使用フレームワーク */}
       <div className="space-y-4">
         <Label>使用フレームワーク</Label>
-        {/* <div className="flex flex-wrap gap-2 mb-2">
-          {selectedFrameworks.map((framework) => (
-            <Badge key={framework} variant="secondary" className="flex items-center gap-1">
-              {framework}
+        <div className="flex flex-wrap gap-2 mb-2">
+          {selectedFrameworks.map((framework, index) => (
+            <Badge key={index} variant="secondary" className="flex items-center gap-1">
+              {framework.framework?.framework_name || framework.other_framework_name}
               <button
                 type="button"
-                onClick={() => removeFramework(framework)}
+                onClick={() => removeFramework(index)}
                 className="ml-1 rounded-full hover:bg-muted p-0.5"
               >
                 <Trash2 className="h-3 w-3" />
-                <span className="sr-only">{framework}を削除</span>
+                <span className="sr-only">{framework.framework?.framework_name || framework.other_framework_name }を削除</span>
               </button>
             </Badge>
           ))}
-        </div> */}
+        </div>
         <div className="flex gap-2">
           <Select value={frameworkInput} onValueChange={setFrameworkInput}>
             <SelectTrigger className="flex-1">
@@ -507,8 +550,8 @@ export function ProfileSettingsForm() {
             <div className="flex gap-2 flex-1">
               <Input
                 placeholder="フレームワーク名を入力"
-                value={frameworkInput === "other" ? "" : frameworkInput}
-                onChange={(e) => setFrameworkInput(e.target.value)}
+                value={customFrameworkInput === "other" ? "" : customFrameworkInput}
+                onChange={(e) => setCustomFrameworkInput(e.target.value)}
               />
               <Button type="button" variant="secondary" onClick={addFramework}>
                 追加
