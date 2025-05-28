@@ -32,15 +32,15 @@ interface SocialMediaInterface {
 }
 type UserLanguage = {
   language: LanguageInterface | null,
-  other_language_name?: string
+  other_language_name: string
 }
 type UserFramework = {
   framework: FrameworkInterface | null,
-  other_framework_name?: string
+  other_framework_name: string
 }
 type UserSocialMedia = {
   social_media: SocialMediaInterface | null,
-  other_social_media_name?: string,
+  other_social_media_name: string,
   url: string
 }
 
@@ -172,7 +172,7 @@ export function ProfileSettingsForm() {
           social_media_name: availableSocialMedias[socialMediaInput]
         },
         url: socialMediaUrlInput,
-        other_social_media_name: undefined,
+        other_social_media_name: "",
       }
     } else {
       newSocialMedia = {
@@ -230,7 +230,7 @@ export function ProfileSettingsForm() {
           id: Number(languageInput),
           language_name: languageName,
         },
-        other_language_name: undefined,
+        other_language_name: "",
       }
     } else {
       newLanguage = {
@@ -282,7 +282,7 @@ export function ProfileSettingsForm() {
           id: Number(frameworkInput),
           framework_name: frameworkName,
         },
-        other_framework_name: undefined,
+        other_framework_name: "",
       }
     }
     else {
