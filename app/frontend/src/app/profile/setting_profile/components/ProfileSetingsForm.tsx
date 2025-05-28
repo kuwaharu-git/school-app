@@ -201,17 +201,6 @@ export function ProfileSettingsForm() {
   const addLanguage = () => {
     if (!languageInput.trim()) return
 
-    // 重複チェック
-    const existingLanguage = selectedLanguages.find(
-      (lang) =>
-        (lang.language && lang.language.language_name === languageInput) ||
-        lang.other_language_name === languageInput
-    )
-    if (existingLanguage) {
-      toast.error("重複", { description: "同じ言語が既に追加されています" })
-      return
-    }
-
     let languageName = ""
     if (languageInput !== "other") {
       languageName = availableLanguages[languageInput] || ""
@@ -221,6 +210,17 @@ export function ProfileSettingsForm() {
         toast.error("言語名が必要", { description: "言語名を入力してください" })
         return
       }
+    }
+        // 重複チェック
+    const existingLanguage = selectedLanguages.find((lang) => (
+      (lang.language && lang.language.language_name === languageName) ||
+      lang.other_language_name === languageName ||
+      (lang.language && lang.language.id === Number(languageInput)) ||
+      (lang.language === null && lang.other_language_name === languageName)
+    ))
+    if (existingLanguage) {
+      toast.error("重複", { description: "同じ言語が既に追加されています" })
+      return
     }
     // 新しい言語オブジェクトの作成
     let newLanguage: UserLanguage
@@ -253,16 +253,6 @@ export function ProfileSettingsForm() {
   const addFramework = () => {
     if (!frameworkInput.trim()) return
 
-    // 重複チェック
-    const existingFramework = selectedFrameworks.find(
-      (fw) =>
-        (fw.framework && fw.framework.framework_name === frameworkInput) ||
-        fw.other_framework_name === frameworkInput
-    )
-    if (existingFramework) {
-      toast.error("重複", { description: "同じフレームワークが既に追加されています" })
-      return
-    }
     let frameworkName = ""
     if (frameworkInput !== "other") {
       frameworkName = availableFrameworks[frameworkInput] || ""
@@ -273,6 +263,17 @@ export function ProfileSettingsForm() {
         toast.error("フレームワーク名が必要", { description: "フレームワーク名を入力してください" })
         return
       }
+    }
+    // 重複チェック
+    const existingFramework = selectedFrameworks.find((fw) => (
+      (fw.framework && fw.framework.framework_name === frameworkName) ||
+      fw.other_framework_name === frameworkName ||
+      (fw.framework && fw.framework.id === Number(frameworkInput)) ||
+      (fw.framework === null && fw.other_framework_name === frameworkName)
+    ))
+    if (existingFramework) {
+      toast.error("重複", { description: "同じフレームワークが既に追加されています" })
+      return
     }
     // 新しいフレームワークオブジェクトの作成
     let newFramework: UserFramework
