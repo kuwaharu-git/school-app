@@ -79,7 +79,6 @@ class UserLanguages(models.Model):
     other_language_name = models.CharField(
         max_length=50,
         blank=True,
-        null=True,
     )
 
     class Meta:
@@ -114,7 +113,6 @@ class UserFrameworks(models.Model):
     other_framework_name = models.CharField(
         max_length=50,
         blank=True,
-        null=True,
     )
 
     class Meta:
@@ -149,12 +147,9 @@ class UserSocialMedias(models.Model):
     other_social_media_name = models.CharField(
         max_length=50,
         blank=True,
-        null=True,
     )
     url = models.URLField(
         max_length=200,
-        blank=True,
-        null=True,
     )
 
     class Meta:
