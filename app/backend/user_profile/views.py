@@ -38,7 +38,7 @@ class UserProfileView(APIView):
             user_id = request.user.id
         # ユーザープロフィールの取得
         user_info = User.objects.get(id=user_id)
-        profile = Profiles.objects.get(user=user_info)
+        profile = Profiles.objects.filter(user=user_info).first()
         user_languages = UserLanguages.objects.filter(user=user_info)
         user_frameworks = UserFrameworks.objects.filter(user=user_info)
         user_social_medias = UserSocialMedias.objects.filter(user=user_info)
@@ -119,7 +119,11 @@ class UserProfileView(APIView):
                 return Response({"errors": errors}, status=400)
 
             # すべてのシリアライザが有効な場合、データを保存
-            # profileの更新
+            # profileの更新（なかった場合は新規作成）
+            Profiles.objects.update_or_create(
+                user=user,
+                defaults=profile_serializer.validated_data,
+            )
             profile_data = profile_serializer.validated_data
             Profiles.objects.update_or_create(
                 user=user,
