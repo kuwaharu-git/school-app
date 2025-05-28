@@ -1,93 +1,211 @@
-# siw-book-app
+# School App
 
+学校向けの総合管理システムです。学生のプロフィール管理、成果物レビュー、図書管理、ブログ機能を提供するフルスタックWebアプリケーションです。
 
+## 🚀 プロジェクト概要
 
-## Getting started
+このプロジェクトは、学校環境での学習支援を目的としたWebアプリケーションです。Django REST Frameworkをバックエンドに、Next.js + TypeScriptをフロントエンドに使用し、Dockerで環境を統一しています。
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+### 主な機能
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+- **認証システム**: 学籍番号ベースのログイン機能
+- **プロフィール管理**: 学生の詳細情報とポートフォリオ管理
+- **成果物レビュー**: 学習成果の共有とフィードバック
+- **図書管理**: 図書館システムとの連携
+- **ブログ機能**: 学習記録や知識共有
 
-## Add your files
+詳細な機能仕様については [docs/feature_list.md](docs/feature_list.md) をご覧ください。
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+## 🛠 技術スタック
+
+### フロントエンド
+- **Next.js 15** - React フレームワーク
+- **TypeScript** - 型安全なJavaScript
+- **Tailwind CSS** - ユーティリティファーストCSS
+- **shadcn/ui** - Radix UIベースのコンポーネントライブラリ
+- **Axios** - HTTP クライアント
+
+### バックエンド
+- **Django 5.2** - Pythonウェブフレームワーク
+- **Django REST Framework** - RESTful API
+- **djangorestframework-simplejwt** - JWT認証
+- **MySQL 8** - リレーショナルデータベース
+
+### 開発環境・ツール
+- **Docker & Docker Compose** - コンテナ化
+- **MySQL 8** - データベースサーバー
+- **ESLint** - JavaScriptリンター
+
+## 📁 プロジェクト構造
 
 ```
-cd existing_repo
-git remote add origin https://www.class.siw.ac.jp:444/gitlab/kuwaharu/siw-book-app.git
-git branch -M main
-git push -uf origin main
+school-app/
+├── app/
+│   ├── backend/           # Django バックエンド
+│   │   ├── myproject/     # Django設定
+│   │   ├── users/         # ユーザー管理アプリ
+│   │   ├── user_profile/  # プロフィール管理アプリ
+│   │   ├── manage.py
+│   │   └── requirements.txt
+│   ├── frontend/          # Next.js フロントエンド
+│   │   ├── src/
+│   │   │   ├── app/       # App Router
+│   │   │   ├── components/ # UIコンポーネント
+│   │   │   └── lib/       # ユーティリティ
+│   │   ├── package.json
+│   │   └── next.config.ts
+│   ├── docker-compose.yml # Docker設定
+│   └── .gitignore
+├── docs/                  # プロジェクト文書
+│   ├── feature_list.md    # 機能一覧
+│   ├── technical_component.md
+│   └── api_data/          # API仕様書
+└── README.md
 ```
 
-## Integrate with your tools
+## 🚀 セットアップ
 
-- [ ] [Set up project integrations](https://www.class.siw.ac.jp:444/gitlab/kuwaharu/siw-book-app/-/settings/integrations)
+### 前提条件
 
-## Collaborate with your team
+- Docker
+- Docker Compose
+- Git
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+### インストール手順
 
-## Test and Deploy
+1. **リポジトリのクローン**
+   ```bash
+   git clone https://www.class.siw.ac.jp:444/gitlab/kuwaharu/siw-book-app.git
+   cd siw-book-app
+   ```
 
-Use the built-in continuous integration in GitLab.
+2. **環境変数の設定**
+   ```bash
+   cd app
+   cp .env.example .env
+   # .envファイルを編集してMySQL接続設定を行う
+   ```
+   
+   `.env`ファイルの設定例：
+   ```bash
+   MYSQL_ROOT_PASSWORD=your_secure_password
+   DB_USER=root
+   DB_PASSWORD=your_secure_password
+   DB_NAME=app
+   DB_HOST=db
+   DB_PORT=3306
+   ```
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+3. **Docker コンテナの起動**
+   ```bash
+   docker-compose up -d
+   ```
+   
+   このコマンドにより以下のサービスが起動します：
+   - `backend`: Django アプリケーション（ポート8000）
+   - `frontend`: Next.js アプリケーション（ポート3000）
+   - `db`: MySQL 8 データベース（ポート3306）
 
-***
+4. **データベースのマイグレーション**
+   ```bash
+   docker-compose exec backend python manage.py migrate
+   ```
+   
+   **注意**: `docker-compose up`実行時、バックエンドは`wait-for-it.sh`スクリプトによりMySQLデータベースの起動を待機してから自動的にマイグレーションを実行します。
 
-# Editing this README
+5. **スーパーユーザーの作成（オプション）**
+   ```bash
+   docker-compose exec backend python manage.py createsuperuser
+   ```
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+### アクセス
 
-## Suggestions for a good README
+- **フロントエンド**: http://localhost:3000
+- **バックエンドAPI**: http://localhost:8000
+- **Django Admin**: http://localhost:8000/admin
+- **MySQL**: localhost:3306
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+## 🔧 開発ワークフロー
 
-## Name
-Choose a self-explaining name for your project.
+### 開発サーバーの起動
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+```bash
+# 全サービス起動
+docker-compose up
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+# 個別サービス起動
+docker-compose up frontend  # フロントエンドのみ
+docker-compose up backend   # バックエンドのみ
+```
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+### コードの変更とホットリロード
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+- フロントエンドとバックエンドの両方でホットリロードが有効
+- `app/frontend/` と `app/backend/` ディレクトリの変更は自動的に反映
+- MySQLデータは永続化ボリューム（`mysql-data`）に保存されます
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+### データベース操作
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+```bash
+# マイグレーションファイルの作成
+docker-compose exec backend python manage.py makemigrations
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+# マイグレーションの実行
+docker-compose exec backend python manage.py migrate
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+# データベースシェル
+docker-compose exec db mysql -u root -p app
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+# または、Djangoのdbshellを使用
+docker-compose exec backend python manage.py dbshell
+```
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+## 📚 API ドキュメント
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+APIの詳細仕様については以下をご参照ください：
 
-## License
-For open source projects, say how it is licensed.
+- **API仕様書**: [docs/api_data/](docs/api_data/)
+- **Django Admin**: http://localhost:8000/admin
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+### 主要なAPIエンドポイント
+
+- `POST /api/auth/login/` - ユーザーログイン
+- `GET /api/profiles/` - プロフィール一覧
+- `GET /api/profiles/{id}/` - 特定プロフィール取得
+- `PUT /api/profiles/{id}/` - プロフィール更新
+
+## 🧪 テスト
+
+```bash
+# バックエンドテスト
+docker-compose exec backend python manage.py test
+
+# フロントエンドテスト（設定後）
+docker-compose exec frontend npm test
+```
+
+## 🤝 コントリビューション
+
+1. このリポジトリをフォーク
+2. 新しいブランチを作成 (`git checkout -b feature/amazing-feature`)
+3. 変更をコミット (`git commit -m 'Add some amazing feature'`)
+4. ブランチにプッシュ (`git push origin feature/amazing-feature`)
+5. マージリクエストを作成
+
+### コーディング規約
+
+- **Python**: PEP 8に準拠
+- **TypeScript/JavaScript**: ESLint設定に従う
+- **コミット**: 日本語または英語で明確な説明
+
+## 📄 ライセンス
+
+このプロジェクトは学習目的で開発されています。
+
+## 📞 サポート
+
+問題や質問がある場合は、GitLab Issuesまでお気軽にお問い合わせください。
+
+---
+
+**開発チーム**: SIW School App Development Team
