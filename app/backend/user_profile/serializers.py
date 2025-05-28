@@ -67,7 +67,7 @@ class UserLanguagesSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         language = attrs.get("language")
         other_language_name = attrs.get("other_language_name")
-        if other_language_name is not None and language is not None:
+        if other_language_name != "" and language is not None:
             if (
                 language.get("id") is not None
                 or language.get("language_name") is not None
@@ -126,7 +126,7 @@ class UserFrameworksSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         framework = attrs.get("framework")
         other_framework_name = attrs.get("other_framework_name")
-        if other_framework_name is not None and framework is not None:
+        if other_framework_name != "" and framework is not None:
             if (
                 framework.get("id") is not None
                 or framework.get("framework_name") is not None
@@ -185,7 +185,7 @@ class UserSocialMediasSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         social_media = attrs.get("social_media")
         other_social_media_name = attrs.get("other_social_media_name")
-        if other_social_media_name is not None and social_media is not None:
+        if other_social_media_name != "" and social_media is not None:
             if (
                 social_media.get("id") is not None
                 or social_media.get("social_media_name") is not None
