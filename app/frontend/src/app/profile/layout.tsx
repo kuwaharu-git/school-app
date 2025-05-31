@@ -31,7 +31,7 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
     return (
         <>
             <Header username={username} />
-            <main className="container max-w-none flex flex-col items-center justify-center min-h-screen">
+            <main className="container max-w-none flex flex-col items-center min-h-screen mt-8">
                 {children}
             </main>
             <Footer />
