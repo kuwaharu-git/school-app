@@ -83,16 +83,16 @@ export function ProfileSettingsForm() {
       .then((res: AxiosResponse) => {
         const response_data = res.data
         const userInfo = response_data.user_info
-        const profile = response_data.profile
+        const user_profile = response_data.user_profile
         const userLanguages = response_data.user_languages || []
         const userFrameworks = response_data.user_frameworks || []
         const userSocialMedias = response_data.user_social_medias || []
 
         // ユーザー情報の設定
         setUsername(userInfo.username || "")
-        setSelfIntroduction(profile.self_introduction || "")
-        setPortfolioUrl(profile.portfolio_url || "")
-        setGithubUrl(profile.github_url || "")
+        setSelfIntroduction(user_profile.self_introduction || "")
+        setPortfolioUrl(user_profile.portfolio_url || "")
+        setGithubUrl(user_profile.github_url || "")
         setSelectedLanguages(userLanguages)
         setSelectedFrameworks(userFrameworks)
         setSelectedSocialMedias(userSocialMedias)
@@ -308,7 +308,7 @@ export function ProfileSettingsForm() {
     setIsSubmitting(true)
 
     customAxios.post("/api/user_profile/", {
-      profile: {
+      user_profile: {
         self_introduction: selfIntroduction,
         portfolio_url: portfolioUrl,
         github_url: githubUrl,
