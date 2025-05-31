@@ -172,3 +172,52 @@ class RequestUserView(APIView):
         )
         request_user.save()
         return Response(status=status.HTTP_201_CREATED)
+
+
+class ChangeUsernameView(APIView):
+    """
+    ユーザー名変更処理
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        if not user.is_authenticated:
+            return Response(
+                {"errMsg": "認証が必要です"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        new_username = request.data.get("new-username")
+        if not new_username:
+            raise BusinessException("新しいユーザー名が未入力です")
+        if User.objects.filter(username=new_username).exists():
+            raise BusinessException("すでに使われているユーザー名です")
+        if RequestUser.objects.filter(username=new_username).exists():
+            raise BusinessException("すでに使われているユーザー名です")
+        if user.username == new_username:
+            raise BusinessException(
+                "新しいユーザー名が現在のユーザー名と同じです"
+            )
+        user.username = new_username
+        user.save()
+        return Response(status=status.HTTP_200_OK)
+
+
+class IsExistUserNameView(APIView):
+    """
+    ユーザー名の存在確認
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        username = request.query_params.get("username")
+        if not username:
+            raise BusinessException("ユーザー名が未入力です")
+        user_exists = User.objects.filter(username=username).exists()
+        request_user_exists = RequestUser.objects.filter(
+            username=username
+        ).exists()
+        exists = user_exists or request_user_exists
+        return Response({"exists": exists}, status=status.HTTP_200_OK)
