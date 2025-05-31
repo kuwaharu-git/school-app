@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .serializers import (
     UserInfoSerializer,
-    ProfilesSerializer,
+    UserProfilesSerializer,
     UserLanguagesSerializer,
     UserFrameworksSerializer,
     UserSocialMediasSerializer,
@@ -25,6 +25,25 @@ from users.models import User
 from django.db import transaction
 
 
+class UserListView(APIView):
+    """
+    ユーザー一覧の取得
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # ユーザー情報の取得
+        users = User.objects.all()
+        # シリアライザを使用してデータを整形
+        serializer = UserInfoSerializer(users, many=True)
+        # レスポンスとして返す
+        response_data = {
+            "users": serializer.data,
+        }
+        return Response(response_data)
+
+
 # Create your views here.
 class UserProfileView(APIView):
     """
@@ -38,13 +57,13 @@ class UserProfileView(APIView):
             user_id = request.user.id
         # ユーザープロフィールの取得
         user_info = User.objects.get(id=user_id)
-        profile = Profiles.objects.filter(user=user_info).first()
+        user_profile = Profiles.objects.filter(user=user_info).first()
         user_languages = UserLanguages.objects.filter(user=user_info)
         user_frameworks = UserFrameworks.objects.filter(user=user_info)
         user_social_medias = UserSocialMedias.objects.filter(user=user_info)
         # シリアライザを使用してデータを整形
         user_info_data = UserInfoSerializer(user_info).data
-        profile_data = ProfilesSerializer(profile).data
+        profile_data = UserProfilesSerializer(user_profile).data
         user_languages_data = UserLanguagesSerializer(
             user_languages, many=True
         ).data
@@ -58,7 +77,7 @@ class UserProfileView(APIView):
         all_profiles_serializer = AllProfilesSerializer(
             {
                 "user_info": user_info_data,
-                "profile": profile_data,
+                "user_profile": profile_data,
                 "user_languages": user_languages_data,
                 "user_frameworks": user_frameworks_data,
                 "user_social_medias": user_social_medias_data,
@@ -75,12 +94,14 @@ class UserProfileView(APIView):
             request_data = request.data
             # リクエストデータの検証
             errors = {}
-            # profile
-            request_profile_data = request_data.get("profile", {})
+            # user_profile
+            request_user_profile_data = request_data.get("user_profile", {})
             # ProfilesSerializerを使用してリクエストデータを検証
-            profile_serializer = ProfilesSerializer(data=request_profile_data)
-            if not profile_serializer.is_valid():
-                errors["profile"] = profile_serializer.errors
+            user_profile_serializer = UserProfilesSerializer(
+                data=request_user_profile_data
+            )
+            if not user_profile_serializer.is_valid():
+                errors["user_profile"] = user_profile_serializer.errors
             # languages
             request_user_languages_data = request_data.get(
                 "user_languages", []
@@ -122,9 +143,9 @@ class UserProfileView(APIView):
             # profileの更新（なかった場合は新規作成）
             Profiles.objects.update_or_create(
                 user=user,
-                defaults=profile_serializer.validated_data,
+                defaults=user_profile_serializer.validated_data,
             )
-            profile_data = profile_serializer.validated_data
+            profile_data = user_profile_serializer.validated_data
             Profiles.objects.update_or_create(
                 user=user,
                 defaults=profile_data,

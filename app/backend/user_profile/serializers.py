@@ -14,10 +14,10 @@ from users.models import User
 class UserInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["student_id", "username"]
+        fields = ["id", "student_id", "username"]
 
 
-class ProfilesSerializer(serializers.ModelSerializer):
+class UserProfilesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profiles
         fields = ["self_introduction", "portfolio_url", "github_url"]
@@ -202,7 +202,7 @@ class UserSocialMediasSerializer(serializers.ModelSerializer):
 
 class AllProfilesSerializer(serializers.Serializer):
     user_info = UserInfoSerializer()
-    profile = ProfilesSerializer()
+    user_profile = UserProfilesSerializer()
     user_languages = UserLanguagesSerializer(many=True)
     user_frameworks = UserFrameworksSerializer(many=True)
     user_social_medias = UserSocialMediasSerializer(many=True)
