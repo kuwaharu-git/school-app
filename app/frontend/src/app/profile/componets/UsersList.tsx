@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo, useEffect, use } from "react";
-import { Search, Globe, Github, ExternalLink } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { Search, Globe, Code2, ExternalLink } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import {
@@ -244,7 +244,7 @@ export function UsersList() {
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 text-sm text-primary hover:underline"
                   >
-                    <Github className="h-4 w-4" />
+                    <Code2 className="h-4 w-4" />
                     {selectedUser.user_profile.github_url}
                     <ExternalLink className="h-3 w-3" />
                   </a>
