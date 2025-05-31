@@ -79,7 +79,17 @@ export function UsersList() {
     null
   );
   const [users, setUsers] = useState<UserData[]>([]);
-  const [filteredAndSortedUsers, setFilteredAndSortedUsers] = useState<UserData[]>([]);
+
+  const filteredAndSortedUsers = useMemo(() => {
+    const sortedUsers = [...users].sort((a, b) =>
+      a.username.localeCompare(b.username)
+    );
+    return sortedUsers.filter(
+      (user) =>
+        user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.student_id.includes(searchTerm)
+    );
+  }, [searchTerm, users]);
 
   useEffect(() => {
     // ユーザリストの初期化
@@ -95,19 +105,6 @@ export function UsersList() {
         // エラーハンドリング（例: モックデータを使用するなど）
       });
   }, []);
-
-  // ユーザー名でソートし、検索フィルターを適用
-  useEffect(() => {
-    const sortedUsers = [...users].sort((a, b) =>
-      a.username.localeCompare(b.username)
-    );
-    const filteredUsers = sortedUsers.filter(
-      (user) =>
-        user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.student_id.includes(searchTerm)
-    );
-    setFilteredAndSortedUsers(filteredUsers);
-  }, [searchTerm, users]);
 
   const handleUserClick = (user: UserData) => {
     // ユーザーの詳細情報を取得
