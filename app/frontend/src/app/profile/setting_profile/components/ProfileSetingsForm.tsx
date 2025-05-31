@@ -7,6 +7,8 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { toast, Toaster } from "sonner"
 import { Loader2, Trash2, ExternalLink, Globe } from "lucide-react"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { AlertCircle } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -355,6 +357,14 @@ export function ProfileSettingsForm() {
     <>
       <Toaster position="top-right" />
       <form onSubmit={handleSubmit} className="space-y-8">
+        {/* エラー表示 */}
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>エラー</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
         {/* ユーザー名 */}
         <div className="space-y-2">
@@ -574,7 +584,7 @@ export function ProfileSettingsForm() {
 
         {/* 送信ボタン */}
         <div className="flex justify-end gap-4 pt-4">
-          <Button type="button" variant="outline" onClick={() => router.push("/dashboard")}>
+          <Button type="button" variant="outline" onClick={() => router.push("/profile/setting_profile")}>
             キャンセル
           </Button>
           <Button type="submit" disabled={isSubmitting}>
