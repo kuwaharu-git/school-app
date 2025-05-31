@@ -26,7 +26,9 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        style={{ paddingLeft: "16px", paddingRight: "16px" }}
       >
+        <div style={{ paddingLeft: "16px", paddingRight: "16px" }}></div>
         {children}
       </body>
     </html>
