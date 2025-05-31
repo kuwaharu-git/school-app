@@ -361,7 +361,7 @@ export function ProfileSettingsForm() {
           <Label htmlFor="username">ユーザー名</Label>
           <div className="flex items-center gap-4">
             <Input id="username" value={username} disabled className="max-w-sm" />
-            <Link href="/settings/username" className="text-sm text-primary flex items-center hover:underline">
+            <Link href="/change_user_name" className="text-sm text-primary flex items-center hover:underline">
               変更する
               <ExternalLink className="ml-1 h-3 w-3" />
             </Link>
