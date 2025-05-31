@@ -21,4 +21,14 @@ urlpatterns = [
     path(
         "request_user/", views.RequestUserView.as_view(), name="request_user"
     ),
+    path(
+        "change_username/",
+        views.ChangeUsernameView.as_view(),
+        name="change_username",
+    ),
+    path(
+        "check_username/",
+        views.IsExistUserNameView.as_view(),
+        name="check_username",
+    ),
 ]
