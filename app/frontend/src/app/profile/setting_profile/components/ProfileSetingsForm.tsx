@@ -77,6 +77,19 @@ export function ProfileSettingsForm() {
   const [customLanguageInput, setCustomLanguageInput] = useState<string>("")
   const [customFrameworkInput, setCustomFrameworkInput] = useState<string>("")
 
+  // 初期化用
+  const [isInitialRender, setIsInitialRender] = useState(true)
+
+  // 初期データを保存する状態を追加
+  const [initialData, setInitialData] = useState({
+    selfIntroduction: "",
+    portfolioUrl: "",
+    githubUrl: "",
+    selectedLanguages: [],
+    selectedFrameworks: [],
+    selectedSocialMedias: []
+  })
+
   // マスタデータの取得
   useEffect(() => {
     customAxios
@@ -97,6 +110,18 @@ export function ProfileSettingsForm() {
         setSelectedLanguages(userLanguages)
         setSelectedFrameworks(userFrameworks)
         setSelectedSocialMedias(userSocialMedias)
+
+        const data = {
+          selfIntroduction: user_profile.self_introduction || "",
+          portfolioUrl: user_profile.portfolio_url || "",
+          githubUrl: user_profile.github_url || "",
+          selectedLanguages: userLanguages,
+          selectedFrameworks: userFrameworks,
+          selectedSocialMedias: userSocialMedias
+        }
+        
+        // 初期データを保存
+        setInitialData(data)
       })
     // 言語、フレームワーク、SNSプラットフォームのデータを取得
     customAxios
@@ -127,7 +152,7 @@ export function ProfileSettingsForm() {
         console.error("SNSプラットフォームの取得に失敗:", err)
         // setError(err.message)
       })
-  }, [])
+  }, [isInitialRender])
 
   // SNSリンクの追加
   const addSocialMedia = () => {
@@ -335,6 +360,30 @@ export function ProfileSettingsForm() {
     })
   }
 
+  // キャンセル機能
+  const cancelChanges = () => {
+    setSelfIntroduction(initialData.selfIntroduction)
+    setPortfolioUrl(initialData.portfolioUrl)
+    setGithubUrl(initialData.githubUrl)
+    setSelectedLanguages([...initialData.selectedLanguages])
+    setSelectedFrameworks([...initialData.selectedFrameworks])
+    setSelectedSocialMedias([...initialData.selectedSocialMedias])
+    
+    // 入力フィールドクリア
+    setLanguageInput("")
+    setFrameworkInput("")
+    setSocialPlatformInput("")
+    setSocialUrlInput("")
+    setCustomPlatformInput("")
+    setCustomLanguageInput("")
+    setCustomFrameworkInput("")
+    
+    setError(null)
+    
+    toast.info("変更をキャンセルしました", { 
+      description: "プロフィール設定を元に戻しました" 
+    })
+  }
 
   // URLのバリデーション
   const isValidUrl = (url: string): boolean => {
@@ -584,9 +633,19 @@ export function ProfileSettingsForm() {
 
         {/* 送信ボタン */}
         <div className="flex justify-end gap-4 pt-4">
-          <Button type="button" variant="outline" onClick={() => router.push("/profile/setting_profile")}>
-            キャンセル
-          </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                // フォームのリセット
+                setIsInitialRender(isInitialRender => !isInitialRender)
+                // 上に移動
+                router.push("/profile/setting_profile")
+                toast.info("変更をキャンセルしました", { description: "プロフィール設定をリセットしました" })
+              }}
+            >
+              キャンセル
+            </Button>
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
