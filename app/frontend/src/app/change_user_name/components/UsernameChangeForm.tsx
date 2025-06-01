@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { customAxios } from "@/lib/customAxios"
+import { AxiosResponse, AxiosError } from "axios"
 
 export function UsernameChangeForm() {
   const router = useRouter()
@@ -45,21 +46,22 @@ export function UsernameChangeForm() {
 
   // 現在のユーザー名を取得
   useEffect(() => {
-    const fetchCurrentUsername = async () => {
-      try {
-        const response = await customAxios.get("/api/users/test")
-        setCurrentUsername(response.data.username)
-      } catch (error) {
-        console.error("Current username fetch failed:", error)
-        setFormError("現在のユーザー名の取得に失敗しました")
-      }
+    const fetchCurrentUsername = () => {
+      customAxios.get("/api/users/test")
+        .then((response: AxiosResponse) => {
+          setCurrentUsername(response.data.username)
+        })
+        .catch((error: AxiosError) => {
+          console.error("Current username fetch failed:", error)
+          setFormError("現在のユーザー名の取得に失敗しました")
+        })
     }
     
     fetchCurrentUsername()
   }, [])
 
   // ユーザー名の可用性チェック
-  const checkUsernameAvailability = async (username: string) => {
+  const checkUsernameAvailability = (username: string) => {
     if (!username || validateUsernameFormat(username)) {
       setUsernameAvailability({ isAvailable: null, isChecked: false })
       return
@@ -68,20 +70,22 @@ export function UsernameChangeForm() {
     setIsCheckingAvailability(true)
     setUsernameAvailability({ isAvailable: null, isChecked: false })
 
-    try {
-      const response = await customAxios.get(`/api/users/check_username/?username=${encodeURIComponent(username)}`)
-      const isAvailable = !response.data.exists
-      
-      setUsernameAvailability({
-        isAvailable,
-        isChecked: true,
+    customAxios.get(`/api/users/check_username/?username=${encodeURIComponent(username)}`)
+      .then((response: AxiosResponse) => {
+        const isAvailable = !response.data.exists
+        
+        setUsernameAvailability({
+          isAvailable,
+          isChecked: true,
+        })
       })
-    } catch (error) {
-      console.error("Username availability check failed:", error)
-      setUsernameAvailability({ isAvailable: null, isChecked: false })
-    } finally {
-      setIsCheckingAvailability(false)
-    }
+      .catch((error: AxiosError) => {
+        console.error("Username availability check failed:", error)
+        setUsernameAvailability({ isAvailable: null, isChecked: false })
+      })
+      .finally(() => {
+        setIsCheckingAvailability(false)
+      })
   }
 
   // ユーザー名入力時の処理
@@ -99,7 +103,8 @@ export function UsernameChangeForm() {
     return () => clearTimeout(timeoutId)
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // フォーム送信処理
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
     // エラー状態をリセット
@@ -136,35 +141,32 @@ export function UsernameChangeForm() {
 
     setIsSubmitting(true)
 
-    try {
-      await customAxios.post("/api/users/change_username/", {
-        "new-username": newUsername,
+    customAxios.post("/api/users/change_username/", {
+      "new-username": newUsername,
+    })
+      .then(() => {
+        // 成功状態を設定
+        setIsSuccess(true)
+
+        // 3秒後にプロフィール設定ページにリダイレクト
+        setTimeout(() => {
+          router.push("/profile/setting_profile")
+        }, 3000)
       })
-
-      // 成功状態を設定
-      setIsSuccess(true)
-
-      // 3秒後にプロフィール設定ページにリダイレクト
-      setTimeout(() => {
-        router.push("/profile/setting_profile")
-      }, 3000)
-    } catch (error: any) {
-      // エラーメッセージを設定
-      let errorMessage = "ユーザー名変更に失敗しました"
-      if (error.response?.data?.errMsg) {
-        errorMessage = error.response.data.errMsg
-      } else if (error.message) {
-        errorMessage = error.message
-      }
-      setFormError(errorMessage)
-      setNewUsername("")
-      setConfirmUsername("")
-      setFieldErrors({})
-      setUsernameAvailability({ isAvailable: null, isChecked: false })
-      setIsSuccess(false)
-    } finally {
-      setIsSubmitting(false)
-    }
+      .catch((error: AxiosError) => {
+        // エラーメッセージを設定
+        const errorMessage = "ユーザー名変更に失敗しました"
+        console.error("Username change failed:", error)
+        setFormError(errorMessage)
+        setNewUsername("")
+        setConfirmUsername("")
+        setFieldErrors({})
+        setUsernameAvailability({ isAvailable: null, isChecked: false })
+        setIsSuccess(false)
+      })
+      .finally(() => {
+        setIsSubmitting(false)
+      })
   }
 
   // 成功時の表示
