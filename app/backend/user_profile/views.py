@@ -223,16 +223,14 @@ class UserProfileView(APIView):
                 if fw.get("other_framework_name")
             ]
             # リクエストにない既存のフレームワークを削除
-            for user_framework in prev_user_frameworks:
-                if user_framework.framework is not None:
-                    if user_framework.framework.id not in request_user_framework_ids:
-                        user_framework.delete()
-                if user_framework.other_framework_name:
-                    if (
-                        user_framework.other_framework_name
-                        not in request_user_other_framework_names
-                    ):
-                        user_framework.delete()
+            # Bulk delete frameworks not in the request
+            UserFrameworks.objects.filter(
+                user=user
+            ).exclude(
+                framework__id__in=request_user_framework_ids
+            ).exclude(
+                other_framework_name__in=request_user_other_framework_names
+            ).delete()
             # 新しいフレームワークを追加
             for fw_data in request_user_frameworks_data:
                 framework = fw_data.get("framework")
