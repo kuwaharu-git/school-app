@@ -224,7 +224,7 @@ class UserProfileView(APIView):
             # リクエストにない既存のフレームワークを削除
             for user_framework in prev_user_frameworks:
                 if user_framework.framework is not None:
-                    if user_framework.id not in request_user_framework_ids:
+                    if user_framework.framework.id not in request_user_framework_ids:
                         user_framework.delete()
                 if user_framework.other_framework_name:
                     if (
