@@ -13,6 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { customAxios } from "@/lib/customAxios";
+import { AxiosResponse, AxiosError } from "axios"
 
 // ユーザーデータの型定義
 interface UserData {
@@ -85,7 +86,7 @@ export function UsersList() {
       a.username.localeCompare(b.username)
     );
     return sortedUsers.filter(
-      (user) =>
+      (user: UserData) =>
         user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.student_id.includes(searchTerm)
     );
@@ -95,12 +96,12 @@ export function UsersList() {
     // ユーザリストの初期化
     customAxios
       .get("/api/user_profile/user_list")
-      .then((response) => {
+      .then((response: AxiosResponse) => {
         // レスポンスからユーザーデータを取得
         const users: UserData[] = response.data.users;
         setUsers(users);
       })
-      .catch((error) => {
+      .catch((error: AxiosError) => {
         console.error("ユーザーデータの取得に失敗しました:", error);
         // エラーハンドリング（例: モックデータを使用するなど）
       });
@@ -110,11 +111,11 @@ export function UsersList() {
     // ユーザーの詳細情報を取得
     customAxios
       .get(`/api/user_profile/${user.id}`)
-      .then((response) => {
+      .then((response: AxiosResponse) => {
         const userProfile: UserProfileData = response.data;
         setSelectedUser(userProfile);
       })
-      .catch((error) => {
+      .catch((error: AxiosError) => {
         console.error("ユーザープロフィールの取得に失敗しました:", error);
         // エラーハンドリング（例: モックデータを使用するなど）
       });
@@ -264,7 +265,7 @@ export function UsersList() {
               <div className="flex flex-wrap gap-2">
                 {selectedUser?.user_languages &&
                 selectedUser.user_languages.length > 0 ? (
-                  selectedUser.user_languages.map((lang, index) => (
+                  selectedUser.user_languages.map((lang: UserLanguage, index: number) => (
                     <Badge
                       key={index}
                       className="bg-secondary text-secondary-foreground"
@@ -290,7 +291,7 @@ export function UsersList() {
               <div className="flex flex-wrap gap-2">
                 {selectedUser?.user_frameworks &&
                 selectedUser.user_frameworks.length > 0 ? (
-                  selectedUser.user_frameworks.map((framework, index) => (
+                  selectedUser.user_frameworks.map((framework: UserFramework, index: number) => (
                     <Badge
                       key={index}
                       className="bg-secondary text-secondary-foreground"
@@ -316,7 +317,7 @@ export function UsersList() {
               <div className="space-y-2">
                 {selectedUser?.user_social_medias &&
                 selectedUser.user_social_medias.length > 0 ? (
-                  selectedUser.user_social_medias.map((social, index) => (
+                  selectedUser.user_social_medias.map((social: UserSocialMedia, index: number) => (
                     <a
                       key={index}
                       href={social.url}
