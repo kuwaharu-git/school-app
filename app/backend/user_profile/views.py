@@ -165,19 +165,20 @@ class UserProfileView(APIView):
                 if lang.get("other_language_name")
             ]
             # リクエストにない既存の言語を削除
-            for prev_user_language in prev_user_languages:
-                if prev_user_language.language is not None:
-                    if (
-                        prev_user_language.language.id
-                        not in request_user_language_ids
-                    ):
-                        prev_user_language.delete()
-                if prev_user_language.other_language_name:
-                    if (
-                        prev_user_language.other_language_name
-                        not in request_user_other_language_names
-                    ):
-                        prev_user_language.delete()
+            # Bulk delete outdated languages based on conditions
+            UserLanguages.objects.filter(
+                user=user,
+                language__id__isnull=False,
+            ).exclude(
+                language__id__in=request_user_language_ids
+            ).delete()
+
+            UserLanguages.objects.filter(
+                user=user,
+                other_language_name__isnull=False,
+            ).exclude(
+                other_language_name__in=request_user_other_language_names
+            ).delete()
             # 新しい言語を追加
             for lang_data in request_user_languages_data:
                 language = lang_data.get("language")
