@@ -145,11 +145,6 @@ class UserProfileView(APIView):
                 user=user,
                 defaults=user_profile_serializer.validated_data,
             )
-            profile_data = user_profile_serializer.validated_data
-            Profiles.objects.update_or_create(
-                user=user,
-                defaults=profile_data,
-            )
             # user_languagesの更新(なくなったものを削除し、新しいものを追加)
             request_user_languages_data = (
                 user_languages_serializer.validated_data
