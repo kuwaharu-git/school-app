@@ -75,8 +75,8 @@ school-app/
 
 1. **リポジトリのクローン**
    ```bash
-   git clone https://www.class.siw.ac.jp:444/gitlab/kuwaharu/siw-book-app.git
-   cd siw-book-app
+   git clone https://github.com/kuwaharu-git/school-app.git
+   cd school-app.git
    ```
 
 2. **環境変数の設定**
