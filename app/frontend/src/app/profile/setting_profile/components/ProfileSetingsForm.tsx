@@ -52,7 +52,7 @@ type AvailableData = {
 export function ProfileSettingsForm() {
   const router = useRouter()
 
-  // 利用かのうな選択肢のデータ
+  // 利用可能な選択肢のデータ
   const [availableLanguages, setAvailableLanguages] = useState<AvailableData>({})
   const [availableFrameworks, setAvailableFrameworks] = useState<AvailableData>({})
   const [availableSocialMedias, setAvailableSocialMedias] = useState<AvailableData>({})
@@ -77,10 +77,7 @@ export function ProfileSettingsForm() {
   const [customLanguageInput, setCustomLanguageInput] = useState<string>("")
   const [customFrameworkInput, setCustomFrameworkInput] = useState<string>("")
 
-  // 初期化用
-  const [isInitialRender, setIsInitialRender] = useState(true)
-
-  // 初期データを保存する状態を追加
+  // 初期データを保存する状態
   const [initialData, setInitialData] = useState({
     selfIntroduction: "",
     portfolioUrl: "",
@@ -90,7 +87,7 @@ export function ProfileSettingsForm() {
     selectedSocialMedias: []
   })
 
-  // マスタデータの取得
+  // マスタデータの取得（依存配列を空にする）
   useEffect(() => {
     customAxios
       .get("/api/user_profile/")
@@ -152,7 +149,7 @@ export function ProfileSettingsForm() {
         console.error("SNSプラットフォームの取得に失敗:", err)
         // setError(err.message)
       })
-  }, [isInitialRender])
+  }, [])
 
   // SNSリンクの追加
   const addSocialMedia = () => {
@@ -633,19 +630,16 @@ export function ProfileSettingsForm() {
 
         {/* 送信ボタン */}
         <div className="flex justify-end gap-4 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                // フォームのリセット
-                setIsInitialRender(isInitialRender => !isInitialRender)
-                // 上に移動
-                router.push("/profile/setting_profile")
-                toast.info("変更をキャンセルしました", { description: "プロフィール設定をリセットしました" })
-              }}
-            >
-              キャンセル
-            </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              router.push("/profile/setting_profile")
+              cancelChanges()
+            }}
+          >
+            キャンセル
+          </Button>
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
