@@ -75,7 +75,7 @@ export function Header({ username }: HeaderProps) {
             {username ? (
                 <>
                     <SheetClose asChild>
-                        <Link href="/profile" className="flex items-center gap-2 px-2 py-1 hover:underline">
+                        <Link href="/profile/setting_profile" className="flex items-center gap-2 px-2 py-1 hover:underline">
                             <User className="h-4 w-4" />
                             <span>プロフィール</span>
                         </Link>
@@ -137,7 +137,7 @@ export function Header({ username }: HeaderProps) {
             {username ? (
               <>
                 <DropdownMenuItem asChild>
-                  <Link href="/profile">
+                  <Link href="/profile/setting_profile">
                     <User className="mr-2 h-4 w-4" />
                     <span>プロフィール</span>
                   </Link>
