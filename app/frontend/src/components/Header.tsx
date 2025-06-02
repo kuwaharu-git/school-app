@@ -36,8 +36,8 @@ export function Header({ username }: HeaderProps) {
 
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" style={{ paddingLeft: "5%", paddingRight: "5%" }}>
-      <div className="flex h-16 items-center justify-between w-full">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex flex-col items-center" style={{ paddingLeft: "5%", paddingRight: "5%" }}>
+      <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
           <User className="h-5 w-5" />
           <span className="font-medium">{username ? username : "ゲスト"}</span>
