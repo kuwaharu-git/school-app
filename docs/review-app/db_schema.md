@@ -31,7 +31,7 @@
 - title: CharField(max_length=255) / VARCHAR(255) NOT NULL
 - slug: SlugField(max_length=255, unique=True) / VARCHAR(255) UNIQUE NOT NULL（フロントのURL用、任意）
 - description: TextField / TEXT
-- repository_url: URLField(max_length=2000) / VARCHAR(2000) NULLABLE? NOT NULL推奨
+- repository_url: URLField(max_length=2000, null=True, blank=True) / VARCHAR(2000) NULL（任意）
 - live_url: URLField(max_length=2000, null=True, blank=True) / VARCHAR(2000) NULL
 - ogp_image_url: URLField(max_length=2000, null=True, blank=True) / VARCHAR(2000) NULL（OGP画像キャッシュ用）
 - is_public: BooleanField(default=True) / BOOLEAN NOT NULL DEFAULT TRUE
@@ -139,7 +139,7 @@ CREATE TABLE projects (
   title VARCHAR(255) NOT NULL,
   slug VARCHAR(255) UNIQUE NOT NULL,
   description TEXT,
-  repository_url VARCHAR(2000) NOT NULL,
+  repository_url VARCHAR(2000),
   live_url VARCHAR(2000),
   ogp_image_url VARCHAR(2000),
   is_public BOOLEAN NOT NULL DEFAULT TRUE,
