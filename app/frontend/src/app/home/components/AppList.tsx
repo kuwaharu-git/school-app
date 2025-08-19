@@ -1,8 +1,7 @@
 "use client"
 
-import { useState } from "react"
 import { AppCard } from "./AppCard"
-import { BookOpen, Calendar, FileText, MessageSquare, Settings, Users } from "lucide-react"
+import { Users } from "lucide-react"
 
 export function AppList() {
 
