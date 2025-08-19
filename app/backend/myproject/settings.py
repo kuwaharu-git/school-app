@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "users",
     "user_profile",
+    "review",  # review アプリを追加
 ]
 
 MIDDLEWARE = [
