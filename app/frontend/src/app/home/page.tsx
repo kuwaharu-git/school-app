@@ -1,5 +1,5 @@
 'use client';
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { noRedirectCustomAxios } from "@/lib/customAxios";
 import { AxiosResponse, AxiosError } from "axios";
 import { Header } from "@/components/Header";
