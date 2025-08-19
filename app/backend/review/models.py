@@ -2,7 +2,6 @@ from django.db import models
 from django.conf import settings
 from django.db.models import Avg, Count
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django.utils.text import slugify
 from decimal import Decimal
 from django.db.models.signals import post_save, post_delete, pre_delete
 from django.dispatch import receiver
@@ -16,7 +15,6 @@ class Project(models.Model):
         related_name="projects",
     )
     title = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255, unique=True, blank=True)
     description = models.TextField(blank=True)
     repository_url = models.URLField(max_length=2000, null=True, blank=True)
     live_url = models.URLField(max_length=2000, null=True, blank=True)
@@ -40,16 +38,6 @@ class Project(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
-        if not self.slug:
-            base = slugify(self.title) or "project"
-            slug = base
-            i = 1
-            while (
-                Project.objects.filter(slug=slug).exclude(pk=self.pk).exists()
-            ):
-                slug = f"{base}-{i}"
-                i += 1
-            self.slug = slug
         super().save(*args, **kwargs)
 
     def update_cached_rating(self):
