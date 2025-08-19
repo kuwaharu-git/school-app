@@ -43,12 +43,12 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Review.objects.select_related("project", "reviewer").all()
-        
+
         # Filter by project ID if provided
-        project_id = self.request.query_params.get('project', None)
+        project_id = self.request.query_params.get("project", None)
         if project_id is not None:
             queryset = queryset.filter(project_id=project_id)
-        
+
         return queryset
 
     def get_serializer_class(self):
