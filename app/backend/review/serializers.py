@@ -84,14 +84,12 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
 
 class ProjectListSerializer(serializers.ModelSerializer):
     author = UserPublicSerializer(read_only=True)
-    # tags removed
 
     class Meta:
         model = Project
         fields = (
             "id",
             "title",
-            "slug",
             "author",
             "repository_url",
             "live_url",
@@ -113,14 +111,12 @@ class ProjectDetailSerializer(ProjectListSerializer):
 
 
 class ProjectCreateUpdateSerializer(serializers.ModelSerializer):
-    # tags removed
 
     class Meta:
         model = Project
         fields = (
             "id",
             "title",
-            "slug",
             "description",
             "repository_url",
             "live_url",
@@ -129,13 +125,11 @@ class ProjectCreateUpdateSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
-        # tags removed
         # author must be set from request.user in the view
         project = Project.objects.create(**validated_data)
         return project
 
     def update(self, instance, validated_data):
-        # tags removed
         for attr, val in validated_data.items():
             setattr(instance, attr, val)
         instance.save()

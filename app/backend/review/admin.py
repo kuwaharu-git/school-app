@@ -15,7 +15,6 @@ class ProjectAdmin(admin.ModelAdmin):
     )
     search_fields = ("title", "author__username", "repository_url")
     list_filter = ("is_public",)
-    prepopulated_fields = {"slug": ("title",)}
     raw_id_fields = ("author",)
 
 
