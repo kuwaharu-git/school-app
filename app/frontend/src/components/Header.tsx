@@ -56,7 +56,7 @@ export function Header({ username }: HeaderProps) {
             </SheetHeader>
             <div className="mt-6 flex flex-col gap-4">
               <SheetClose asChild>
-                <Link href="/dashboard" className="flex items-center gap-2 px-2 py-1 hover:underline">
+                <Link href="/home" className="flex items-center gap-2 px-2 py-1 hover:underline">
                   <span>ホーム</span>
                 </Link>
               </SheetClose>
@@ -119,7 +119,7 @@ export function Header({ username }: HeaderProps) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
-              <Link href="/dashboard">ホーム</Link>
+              <Link href="/home">ホーム</Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href="/settings">

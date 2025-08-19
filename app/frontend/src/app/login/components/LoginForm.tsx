@@ -41,7 +41,7 @@ export function LoginForm() {
           // 初回ログイン時の処理
           router.push("/change_password?is_initial_password=true");
         } else {
-          router.push("/");
+          router.push("/home");
         }
         // それ以外の処理
       })
