@@ -7,6 +7,7 @@ import { toast } from "sonner"
 import { Trash2, User, Key } from "lucide-react"
 
 import { Header } from "@/components/Header"
+import { BackButton } from "@/components/BackButton"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card"
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
@@ -83,6 +84,7 @@ export default function SettingsPage() {
       <Header username={username} />
       <main className="flex-grow flex items-center justify-center py-8 px-4">
         <div className="w-full max-w-2xl mx-auto">
+          <BackButton fallback="/home" />
           <Card>
             <CardHeader>
               <CardTitle>設定</CardTitle>

@@ -1,5 +1,4 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import { BackButton } from "@/components/BackButton"
 
 export default function TermsPage() {
   return (
@@ -106,9 +105,7 @@ export default function TermsPage() {
         </section>
 
         <div className="flex justify-center pt-8 pb-4">
-          <Link href="/register">
-            <Button variant="outline">登録ページに戻る</Button>
-          </Link>
+          <BackButton fallback="/register" />
         </div>
       </div>
     </main>
