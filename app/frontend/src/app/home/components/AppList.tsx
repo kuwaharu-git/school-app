@@ -13,7 +13,14 @@ export function AppList() {
       description: "ユーザのプロフィールを確認できます",
       icon: Users,
       href: "/profile",
-    }
+    },
+    {
+      id: "reviews",
+      title: "制作物レビュー",
+      description: "生徒の制作物を登録・レビューできます",
+      icon: Users,
+      href: "/reviews",
+    },
   ]
 
   return (
