@@ -145,16 +145,28 @@ if "whitenoise.middleware.WhiteNoiseMiddleware" not in MIDDLEWARE:
     MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
+
 # 基本的なセキュリティヘッダ (本番向け、DEBUG=False のときのみ有効化)
+def _env_bool(name: str, default: str = "0") -> bool:
+    return os.getenv(name, default) in ("1", "true", "True")
+
+
 if not DEBUG:
     SECURE_HSTS_SECONDS = int(
         os.getenv("DJANGO_SECURE_HSTS_SECONDS", "31536000")
     )
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
-    SECURE_SSL_REDIRECT = os.getenv("DJANGO_SECURE_SSL_REDIRECT", "1") == "1"
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = _env_bool("DJANGO_SECURE_SSL_REDIRECT", "1")
+    # HTTP テスト中は Secure クッキーでブロックされるため、環境変数で明示制御可能に
+    SESSION_COOKIE_SECURE = _env_bool(
+        "DJANGO_SESSION_COOKIE_SECURE",
+        "1" if SECURE_SSL_REDIRECT else "0",
+    )
+    CSRF_COOKIE_SECURE = _env_bool(
+        "DJANGO_CSRF_COOKIE_SECURE",
+        "1" if SECURE_SSL_REDIRECT else "0",
+    )
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = "DENY"
