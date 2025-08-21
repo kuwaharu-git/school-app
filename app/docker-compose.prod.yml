@@ -5,10 +5,6 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.prod
-    env_file: .env
-    environment:
-      DB_HOST: db
-      DB_PORT: 3306
     restart: always
     depends_on: [db]
     networks: [app-net]
