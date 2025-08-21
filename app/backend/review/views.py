@@ -36,6 +36,14 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
+    def perform_update(self, serializer):
+        # プロジェクト更新時も作者は変更されない
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        # プロジェクト削除（関連するレビューも CASCADE で削除される）
+        instance.delete()
+
 
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.select_related("project", "reviewer").all()
