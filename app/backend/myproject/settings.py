@@ -157,15 +157,15 @@ if not DEBUG:
     )
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
-    SECURE_SSL_REDIRECT = _env_bool("DJANGO_SECURE_SSL_REDIRECT", "1")
-    # HTTP テスト中は Secure クッキーでブロックされるため、環境変数で明示制御可能に
+    SECURE_SSL_REDIRECT = _env_bool("DJANGO_SECURE_SSL_REDIRECT", "0")
+    # HTTP 運用既定: Secure クッキーは既定で無効（必要時に環境変数で有効化）
     SESSION_COOKIE_SECURE = _env_bool(
         "DJANGO_SESSION_COOKIE_SECURE",
-        "1" if SECURE_SSL_REDIRECT else "0",
+        "0",
     )
     CSRF_COOKIE_SECURE = _env_bool(
         "DJANGO_CSRF_COOKIE_SECURE",
-        "1" if SECURE_SSL_REDIRECT else "0",
+        "0",
     )
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
