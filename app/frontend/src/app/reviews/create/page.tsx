@@ -12,6 +12,7 @@ import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { toast, Toaster } from "sonner"
 import { Loader2 } from "lucide-react"
+import { BackButton } from "@/components/BackButton"
 
 export default function CreateProject() {
   const router = useRouter()
@@ -103,6 +104,9 @@ export default function CreateProject() {
       <Header username={username} />
       <main className="container max-w-none flex flex-col items-center min-h-screen mt-8">
         <div className="w-full px-4 max-w-2xl">
+          <div className="mb-2">
+            <BackButton href="/reviews" />
+          </div>
           <Toaster />
           
           <Card className="mb-8">

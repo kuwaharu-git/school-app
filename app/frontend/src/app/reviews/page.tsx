@@ -9,6 +9,7 @@ import { Footer } from "@/components/Footer"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
+import { BackButton } from "@/components/BackButton"
 
 type Project = {
   id: number
@@ -93,6 +94,9 @@ export default function ReviewsPage() {
       <Header username={username} />
       <main className="container max-w-none flex flex-col items-center min-h-screen mt-8">
         <div className="w-full px-4">
+          <div className="mb-2 flex">
+            <BackButton href="/home" label="ホームに戻る" />
+          </div>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <h1 className="text-2xl font-semibold">制作物レビュー</h1>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">

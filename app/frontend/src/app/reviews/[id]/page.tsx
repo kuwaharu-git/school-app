@@ -12,6 +12,7 @@ import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { toast, Toaster } from "sonner"
 import { Loader2, ExternalLink, Edit } from "lucide-react"
+import { BackButton } from "@/components/BackButton"
 
 type Project = {
   id: number
@@ -139,6 +140,9 @@ export default function ProjectDetail({ params }: { params: Promise<{ id: string
       <Header username={username} />
       <main className="container max-w-none flex flex-col items-center min-h-screen mt-8">
         <div className="w-full px-4 max-w-4xl">
+          <div className="mb-2">
+            <BackButton href="/reviews" />
+          </div>
           <Toaster />
           
           {/* Project Info Card */}

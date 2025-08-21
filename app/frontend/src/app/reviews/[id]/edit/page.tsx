@@ -12,6 +12,7 @@ import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { toast, Toaster } from "sonner"
 import { Loader2, Trash2, AlertTriangle } from "lucide-react"
+import { BackButton } from "@/components/BackButton"
 
 type Project = {
   id: number
@@ -175,6 +176,9 @@ export default function EditProject({ params }: { params: Promise<{ id: string }
       <Header username={username} />
       <main className="container max-w-none flex flex-col items-center min-h-screen mt-8">
         <div className="w-full px-4 max-w-2xl">
+          <div className="mb-2">
+            <BackButton href={`/reviews/${id}`} />
+          </div>
           <Toaster />
           
           <Card className="mb-8">
@@ -260,27 +264,30 @@ export default function EditProject({ params }: { params: Promise<{ id: string }
                   </label>
                 </div>
 
-                <div className="flex gap-4 pt-4">
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting || !title.trim()}
-                    className="flex items-center gap-2"
-                  >
-                    {isSubmitting ? <Loader2 className="animate-spin h-4 w-4" /> : null}
-                    更新する
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => router.push(`/reviews/${id}`)}
-                  >
-                    キャンセル
-                  </Button>
+                <div className="flex flex-col sm:flex-row gap-3 pt-4 w-full">
+                  <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto sm:flex-1">
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting || !title.trim()}
+                      className="flex items-center gap-2 w-full sm:w-auto"
+                    >
+                      {isSubmitting ? <Loader2 className="animate-spin h-4 w-4" /> : null}
+                      更新する
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => router.push(`/reviews/${id}`)}
+                      className="w-full sm:w-auto"
+                    >
+                      キャンセル
+                    </Button>
+                  </div>
                   <Button
                     type="button"
                     variant="destructive"
                     onClick={() => setShowDeleteModal(true)}
-                    className="flex items-center gap-2 ml-auto"
+                    className="flex items-center gap-2 w-full sm:w-auto sm:ml-auto"
                   >
                     <Trash2 className="h-4 w-4" />
                     削除

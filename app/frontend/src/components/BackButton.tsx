@@ -3,10 +3,38 @@
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
+import React from "react"
 
-export function BackButton({ fallback = "/" }: { fallback?: string }) {
+type BackButtonProps = {
+  href?: string // 明示的に遷移したいパス
+  fallback?: string // 履歴が無い場合のフォールバック
+  label?: string
+  className?: string
+  size?: "sm" | "default" | "lg" | "icon"
+  variant?:
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link"
+}
+
+export function BackButton({
+  href,
+  fallback = "/home",
+  label = "戻る",
+  className = "",
+  size = "sm",
+  variant = "ghost",
+}: BackButtonProps) {
   const router = useRouter()
-  const handle = () => {
+
+  const handleClick = () => {
+    if (href) {
+      router.push(href)
+      return
+    }
     if (typeof window !== "undefined" && window.history.length > 1) {
       router.back()
     } else {
@@ -15,9 +43,15 @@ export function BackButton({ fallback = "/" }: { fallback?: string }) {
   }
 
   return (
-    <Button variant="ghost" onClick={handle} className="mb-4 inline-flex items-center gap-2">
+    <Button
+      type="button"
+      variant={variant}
+      size={size}
+      onClick={handleClick}
+      className={`inline-flex items-center gap-2 ${className}`}
+    >
       <ArrowLeft className="h-4 w-4" />
-      戻る
+      {label}
     </Button>
   )
 }
