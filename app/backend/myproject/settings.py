@@ -22,14 +22,28 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = (
-    "django-insecure-%^^cu(ynrs@k_rqo%vjgbhom_%clqrr@%qegvg*k55a&km!8tx"
+SECRET_KEY = os.getenv(
+    "DJANGO_SECRET_KEY",
+    "dev-insecure-secret-key-change-me",  # 開発用フォールバック（本番では必ず上書き）
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DJANGO_DEBUG", "True").lower() == "true"
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "*").split(",")
+
+csrf_trusted = os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "")
+if csrf_trusted:
+    CSRF_TRUSTED_ORIGINS = [
+        o.strip() for o in csrf_trusted.split(",") if o.strip()
+    ]
+
+# CSRF信頼オリジン (https:// は必須)
+csrf_trusted = os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "")
+if csrf_trusted:
+    CSRF_TRUSTED_ORIGINS = [
+        o.strip() for o in csrf_trusted.split(",") if o.strip()
+    ]
 
 
 # Application definition
@@ -98,16 +112,27 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "UserAttributeSimilarityValidator"
+        )
     },
     {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation." "MinimumLengthValidator"
+        )
     },
     {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "CommonPasswordValidator"
+        )
     },
     {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "NumericPasswordValidator"
+        )
     },
 ]
 
@@ -128,6 +153,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -156,3 +184,42 @@ SIMPLE_JWT = {
 
 # Cookieの有効期限に使用する
 COOKIE_TIME = 60 * 60 * 12
+
+if not DEBUG:
+    SECURE_HSTS_SECONDS = int(
+        os.getenv("DJANGO_SECURE_HSTS_SECONDS", "31536000")
+    )
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_SSL_REDIRECT = (
+        os.getenv("DJANGO_SECURE_SSL_REDIRECT", "True").lower() == "true"
+    )
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    CSRF_COOKIE_HTTPONLY = False
+    SESSION_COOKIE_HTTPONLY = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = "DENY"
+    REFERRER_POLICY = "strict-origin-when-cross-origin"
+
+# 本番環境向けセキュリティ設定
+if not DEBUG:
+    SECURE_HSTS_SECONDS = int(
+        os.getenv("DJANGO_SECURE_HSTS_SECONDS", "31536000")
+    )
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_SSL_REDIRECT = (
+        os.getenv("DJANGO_SECURE_SSL_REDIRECT", "True").lower() == "true"
+    )
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    CSRF_COOKIE_HTTPONLY = (
+        False  # SPA が CSRF トークンを読み取らない構成の場合は False
+    )
+    SESSION_COOKIE_HTTPONLY = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = "DENY"
+    REFERRER_POLICY = "strict-origin-when-cross-origin"

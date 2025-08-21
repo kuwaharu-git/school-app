@@ -198,6 +198,43 @@ docker-compose exec frontend npm test
 - **TypeScript/JavaScript**: ESLint設定に従う
 - **コミット**: 日本語または英語で明確な説明
 
+## 🏗 本番デプロイ (AWS / Docker)
+
+本番では `app/docker-compose.prod.yml` を使用し `nginx + gunicorn + certbot + Next.js + MySQL` 構成で稼働します。
+
+### 手順概要
+1. サーバでリポジトリ取得: `git clone ...`
+2. `.env.example` を基に `app/.env.prod` 作成し値を設定
+3. 初回: 80/443 を開放し `docker compose -f app/docker-compose.prod.yml up -d --build`
+4. 証明書反映後 HTTPS 動作確認
+
+### 主要環境変数
+| 変数 | 用途 |
+|------|------|
+| DJANGO_SECRET_KEY | Djangoシークレット (必須) |
+| DJANGO_ALLOWED_HOSTS | 許可ホスト (カンマ区切り) |
+| DJANGO_CSRF_TRUSTED_ORIGINS | CSRF信頼オリジン (https://付き) |
+| NEXT_PUBLIC_API_ORIGIN | フロントが参照する API ルート |
+| DB_NAME/DB_USER/DB_PASSWORD | アプリ接続DB |
+| MYSQL_ROOT_PASSWORD | root パスワード |
+| SSL_PRIMARY_DOMAIN | 証明書対象ドメイン |
+
+### セキュリティ強化済み
+- SECRET_KEY/DEBUG/ALLOWED_HOSTS の環境変数化
+- 本番時のみ HSTS / Secure Cookie / SSL Redirect / X-Frame-Options etc.
+- gunicorn 採用 (開発 runserver 排除)
+- Next.js 画像ホストのホワイトリスト化
+- staticfiles 収集とマイグレーションをエントリポイントで自動実行
+
+### 追加推奨
+- AWS WAF もしくは CloudFront 経由配信
+- RDS (自動バックアップ・Multi-AZ)
+- Secrets Manager で機密管理
+- CloudWatch Logs / Metrics 監視
+- Fail2Ban や OS レベル自動更新（unattended-upgrades）
+
+詳細は `docs/aws/aws構築手順.md` を参照。
+
 ## 📄 ライセンス
 
 このプロジェクトは学習目的で開発されています。

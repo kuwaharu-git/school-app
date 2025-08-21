@@ -2,14 +2,10 @@
 const nextConfig = {
     images: {
         remotePatterns: [
-            {
-                protocol: 'https',
-                hostname: '**', // 全てのHTTPSホストを許可
-            },
-            {
-                protocol: 'http',
-                hostname: '**', // 全てのHTTPホストを許可
-            }
+            { protocol: 'https', hostname: 'raw.githubusercontent.com' },
+            { protocol: 'https', hostname: '*.githubusercontent.com' },
+            { protocol: 'https', hostname: '*.github.io' },
+            { protocol: 'https', hostname: 'images.unsplash.com' },
         ],
         // プロダクション環境でより制限したい場合の設定例（コメントアウト）
         // remotePatterns: [
@@ -45,11 +41,14 @@ const nextConfig = {
 module.exports = {
     ...nextConfig,
     async rewrites() {
-        return [
-            {
-                source: '/api/:path*',
-                destination: 'http://host.docker.internal:8000/api/:path*/',
-            },
-        ]
+        if (process.env.NODE_ENV === 'development') {
+            return [
+                {
+                    source: '/api/:path*',
+                    destination: 'http://host.docker.internal:8000/api/:path*/',
+                },
+            ]
+        }
+        return []
     },
 };
