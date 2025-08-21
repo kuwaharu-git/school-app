@@ -15,7 +15,8 @@ services:
   frontend:
     build:
       context: ./frontend
-    dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile.prod
+    env_file: .env.prod
     environment:
       - NEXT_PUBLIC_API_ORIGIN=${NEXT_PUBLIC_API_ORIGIN}
     restart: always
@@ -52,6 +53,7 @@ services:
 
   db:
     image: mysql:8
+    env_file: .env.prod
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
