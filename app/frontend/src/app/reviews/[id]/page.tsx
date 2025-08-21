@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
+import Link from "next/link"
 import Image from "next/image"
 import { customAxios, noRedirectCustomAxios } from "@/lib/customAxios"
 import { AxiosResponse, AxiosError } from "axios"
@@ -10,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { toast, Toaster } from "sonner"
-import { Loader2, ExternalLink } from "lucide-react"
+import { Loader2, ExternalLink, Edit } from "lucide-react"
 
 type Project = {
   id: number
@@ -143,11 +144,23 @@ export default function ProjectDetail({ params }: { params: Promise<{ id: string
           {/* Project Info Card */}
           <Card className="mb-6">
             <CardHeader>
-              <CardTitle className="text-2xl">{project.title}</CardTitle>
-              <CardDescription className="space-y-1">
-                <div>作者: {project.author.display_name || project.author.username}</div>
-                <div className="text-xs">作成日: {new Date(project.created_at).toLocaleDateString('ja-JP')}</div>
-              </CardDescription>
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <CardTitle className="text-2xl">{project.title}</CardTitle>
+                  <CardDescription className="space-y-1">
+                    <div>作者: {project.author.display_name || project.author.username}</div>
+                    <div className="text-xs">作成日: {new Date(project.created_at).toLocaleDateString('ja-JP')}</div>
+                  </CardDescription>
+                </div>
+                {isAuthenticated && username && project.author.username === username && (
+                  <Link href={`/reviews/${id}/edit`}>
+                    <Button variant="outline" size="sm" className="flex items-center gap-2">
+                      <Edit className="h-4 w-4" />
+                      編集
+                    </Button>
+                  </Link>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
