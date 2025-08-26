@@ -45,11 +45,14 @@ const nextConfig = {
 module.exports = {
     ...nextConfig,
     async rewrites() {
+        // API ベース URL: コンテナ間通信はサービス名 'django'
+        // 環境変数 NEXT_PUBLIC_API_BASE があればそれを優先 (例: https://api.example.com)
+        const apiBase = process.env.NEXT_PUBLIC_API_BASE || 'http://django:8000';
         return [
             {
                 source: '/api/:path*',
-                destination: 'http://host.docker.internal:8000/api/:path*/',
+                destination: `${apiBase}/api/:path*/`,
             },
-        ]
+        ];
     },
 };

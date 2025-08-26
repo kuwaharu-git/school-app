@@ -22,14 +22,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = (
-    "django-insecure-%^^cu(ynrs@k_rqo%vjgbhom_%clqrr@%qegvg*k55a&km!8tx"
-)
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "unsafe-dev-secret-change-me")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DJANGO_DEBUG", "0") not in ["0", "false", "False"]
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    h for h in os.getenv("DJANGO_ALLOWED_HOSTS", "*").split(",") if h
+]
 
 
 # Application definition
@@ -86,7 +86,8 @@ DATABASES = {
         "NAME": os.getenv("DB_NAME", "app"),
         "USER": os.getenv("DB_USER", "root"),
         "PASSWORD": os.getenv("DB_PASSWORD", "password"),
-        "HOST": os.getenv("DB_HOST", "db"),
+        # docker-compose サービス名と合わせる (旧: db → 現在: mysql)
+        "HOST": os.getenv("DB_HOST", "mysql"),
         "PORT": os.getenv("DB_PORT", "3306"),
         "ATOMIC_REQUESTS": True,
     }
@@ -98,16 +99,25 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "UserAttributeSimilarityValidator"
+        ),
     },
     {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation.MinimumLengthValidator"
+        ),
     },
     {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation.CommonPasswordValidator"
+        ),
     },
     {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation.NumericPasswordValidator"
+        ),
     },
 ]
 
@@ -117,7 +127,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Tokyo"
 
 USE_I18N = True
 
@@ -127,7 +137,39 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# WhiteNoise (静的ファイル) 設定
+if "whitenoise.middleware.WhiteNoiseMiddleware" not in MIDDLEWARE:
+    MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+
+# 基本的なセキュリティヘッダ (本番向け、DEBUG=False のときのみ有効化)
+def _env_bool(name: str, default: str = "0") -> bool:
+    return os.getenv(name, default) in ("1", "true", "True")
+
+
+if not DEBUG:
+    SECURE_HSTS_SECONDS = int(
+        os.getenv("DJANGO_SECURE_HSTS_SECONDS", "31536000")
+    )
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_SSL_REDIRECT = _env_bool("DJANGO_SECURE_SSL_REDIRECT", "0")
+    # HTTP 運用既定: Secure クッキーは既定で無効（必要時に環境変数で有効化）
+    SESSION_COOKIE_SECURE = _env_bool(
+        "DJANGO_SESSION_COOKIE_SECURE",
+        "0",
+    )
+    CSRF_COOKIE_SECURE = _env_bool(
+        "DJANGO_CSRF_COOKIE_SECURE",
+        "0",
+    )
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = "DENY"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -156,3 +198,15 @@ SIMPLE_JWT = {
 
 # Cookieの有効期限に使用する
 COOKIE_TIME = 60 * 60 * 12
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://school.kuwaharu.com",
+]
+
+# ログ (最小例)
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "root": {"handlers": ["console"], "level": "INFO"},
+}

@@ -1,41 +1,68 @@
-version: '3.9'
+# Raspberry Pi (ARM) 対応: 公式 mysql:8 / node / python イメージは multi-arch なのでそのまま利用可。
+# 公開は Cloudflare Tunnel 経由 (nextjs コンテナ) のみ。django と mysql へのホスト側ポート公開は行わない。
 
 services:
-  backend:
+  django:
     build:
       context: ./backend
-    volumes:
-      - ./backend:/app
+    container_name: django
+    # 本番: コードはイメージ内に取り込み。ホットリロード不要のため bind mount しない。
     working_dir: /app
     command: >
-      sh -c "./wait-for-it.sh db:3306 -- python manage.py migrate &&
-             python manage.py runserver 0.0.0.0:8000"
+      sh -c "./wait-for-it.sh mysql:3306 -- \
+             python manage.py migrate && \
+             python manage.py collectstatic --noinput && \
+             gunicorn myproject.wsgi:application --bind 0.0.0.0:8000 --workers=3"
+    # メンテナンス用にホスト 8000 を公開 (Cloudflare Tunnel なし直接アクセス制限はファイアウォールで調整可)
     ports:
       - "8000:8000"
+    expose:
+      - "8000"
     env_file: .env
     depends_on:
-      - db
+      - mysql
 
-  frontend:
+  nextjs:
     build:
       context: ./frontend
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
+    container_name: nextjs
+    # 本番: イメージ内ビルド済み。ローカルコードはマウントしない。
     working_dir: /app
-    command: npm run dev
+    command: npm run start
+    # ホスト上の cloudflared から localhost:3000 へ到達させるためポート公開
     ports:
       - "3000:3000"
+    expose:
+      - "3000"
+    depends_on:
+      - django
 
-  db:
+  mysql:
     image: mysql:8
+    container_name: mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER:-appuser}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-apppass}
+    command: ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
     volumes:
       - mysql-data:/var/lib/mysql
+    # メンテナンス用にホスト 3306 を公開
     ports:
       - "3306:3306"
+    expose:
+      - "3306"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -p$MYSQL_ROOT_PASSWORD || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+networks:
+  default:
+    name: app-network
 
 volumes:
   mysql-data:
