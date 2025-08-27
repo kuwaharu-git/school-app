@@ -74,13 +74,25 @@ export default function ProjectDetail({ params }: { params: Promise<{ id: string
   }, [])
 
   useEffect(() => {
+    // 認証判定が終わるまで何もしない
+    if (isAuthenticated === null) return;
+
     const fetchData = async () => {
       try {
-        const res: AxiosResponse<Project> = await customAxios.get(`/api/review/projects/${id}/`)
-        setProject(res.data)
-        // fetch reviews
-        const revRes: AxiosResponse<Review[]> = await customAxios.get(`/api/review/reviews/?project=${id}`)
-        setReviews(revRes.data)
+        if (username) {
+          const res: AxiosResponse<Project> = await customAxios.get(`/api/review/projects/${id}/`)
+          setProject(res.data)
+          // fetch reviews
+          const revRes: AxiosResponse<Review[]> = await customAxios.get(`/api/review/reviews/?project=${id}`)
+          setReviews(revRes.data)
+        } else {
+          console.log("未認証")
+          const res: AxiosResponse<Project> = await customAxios.get(`/api/review/public-projects/${id}/`)
+          setProject(res.data)
+          // fetch reviews
+          const revRes: AxiosResponse<Review[]> = await customAxios.get(`/api/review/public-reviews/?project=${id}`)
+          setReviews(revRes.data)
+        }
       } catch (err: unknown) {
         if ((err as AxiosError).isAxiosError) {
           setError(((err as AxiosError).message) || "APIエラー")
@@ -94,7 +106,7 @@ export default function ProjectDetail({ params }: { params: Promise<{ id: string
       }
     }
     fetchData()
-  }, [id])
+  }, [username, isAuthenticated, id])
 
   const submitReview = async (e: React.FormEvent) => {
     e.preventDefault()

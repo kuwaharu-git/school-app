@@ -55,9 +55,17 @@ export default function ReviewsPage() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const res: AxiosResponse<Project[]> = await customAxios.get("/api/review/projects/")
-        setAllProjects(res.data)
-        setProjects(res.data)
+        if (username) {
+          console.log("認証済み")
+          const res: AxiosResponse<Project[]> = await customAxios.get("/api/review/projects/")
+          setAllProjects(res.data)
+          setProjects(res.data)
+        } else {
+          console.log("未認証")
+          const res: AxiosResponse<Project[]> = await customAxios.get("/api/review/public-projects/")
+          setAllProjects(res.data)
+          setProjects(res.data)
+        }
       } catch (err: unknown) {
         if ((err as AxiosError).isAxiosError) {
           setError(((err as AxiosError).message) || "APIエラー")
@@ -71,7 +79,7 @@ export default function ReviewsPage() {
       }
     }
     fetchProjects()
-  }, [])
+  }, [username])
 
   // フィルタリング機能
   useEffect(() => {
