@@ -1,6 +1,6 @@
 # School App
 
-学校向けの総合管理システムです。学生のプロフィール管理、成果物レビュー、図書管理、ブログ機能を提供するフルスタックWebアプリケーションです。
+学校向けの総合管理システムです。学生のプロフィール管理、成果物レビューフルスタックWebアプリケーションです。
 
 ## 🚀 プロジェクト概要
 
@@ -11,10 +11,8 @@
 - **認証システム**: 学籍番号ベースのログイン機能
 - **プロフィール管理**: 学生の詳細情報とポートフォリオ管理
 - **成果物レビュー**: 学習成果の共有とフィードバック
-- **図書管理**: 図書館システムとの連携
-- **ブログ機能**: 学習記録や知識共有
 
-詳細な機能仕様については [docs/feature_list.md](docs/feature_list.md) をご覧ください。
+今後実装予定の機能仕様については [docs/feature_list.md](docs/feature_list.md) をご覧ください。
 
 ## 🛠 技術スタック
 
@@ -43,6 +41,7 @@ school-app/
 ├── app/
 │   ├── backend/           # Django バックエンド
 │   │   ├── myproject/     # Django設定
+│   │   ├── review         # 成果物レビューアプリ 
 │   │   ├── users/         # ユーザー管理アプリ
 │   │   ├── user_profile/  # プロフィール管理アプリ
 │   │   ├── manage.py
@@ -83,21 +82,25 @@ school-app/
    ```bash
    cd app
    cp .env.example .env
-   # .envファイルを編集してMySQL接続設定を行う
+   # .envファイルを編集してMySQL接続設定, Djangoの設定を行う
    ```
    
    `.env`ファイルの設定例：
    ```bash
-   MYSQL_ROOT_PASSWORD=your_secure_password
-   DB_USER=root
-   DB_PASSWORD=your_secure_password
-   DB_NAME=app
-   DB_HOST=db
+   MYSQL_ROOT_PASSWORD=change-your-password
+   DB_USER=appuser
+   DB_PASSWORD=change-your-password
+   DB_NAME=appdb
+   DB_HOST=mysql
    DB_PORT=3306
+   DJANGO_SECRET_KEY=change-your-secret-key
+   DJANGO_DEBUG=0
+   DJANGO_ALLOWED_HOSTS=django,localhost
    ```
 
-3. **Docker コンテナの起動**
+3. **本番環境用Docker コンテナの起動**
    ```bash
+   docker compose build --no-cache
    docker-compose up -d
    ```
    
@@ -130,19 +133,15 @@ school-app/
 ### 開発サーバーの起動
 
 ```bash
-# 全サービス起動
-docker-compose up
-
-# 個別サービス起動
-docker-compose up frontend  # フロントエンドのみ
-docker-compose up backend   # バックエンドのみ
+docker compose -f docker-compose.yml.dev build --no-cache
+docker compose -f docker-compose.yml.dev up
 ```
 
 ### コードの変更とホットリロード
 
 - フロントエンドとバックエンドの両方でホットリロードが有効
 - `app/frontend/` と `app/backend/` ディレクトリの変更は自動的に反映
-- MySQLデータは永続化ボリューム（`mysql-data`）に保存されます
+- MySQLデータは永続化ボリューム（`dev-mysql-data`）に保存されます
 
 ### データベース操作
 
