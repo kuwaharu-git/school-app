@@ -31,4 +31,5 @@ urlpatterns = [
         views.IsExistUserNameView.as_view(),
         name="check_username",
     ),
+    path("delete_user/", views.UserDeleteView.as_view(), name="delete_user"),
 ]

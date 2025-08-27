@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, PermissionDenied
 from django.db.models import F, Value, Sum
 from django.db.models.functions import Coalesce
 from .models import User, RequestUser
@@ -202,6 +202,25 @@ class ChangeUsernameView(APIView):
         user.username = new_username
         user.save()
         return Response(status=status.HTTP_200_OK)
+
+
+class UserDeleteView(APIView):
+    """
+    ユーザー削除処理（自分自身のみ）
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        user = request.user
+        if not user.is_authenticated:
+            return Response(
+                {"errMsg": "認証が必要です"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        # 追加の権限制御が必要ならここで判定
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class IsExistUserNameView(APIView):
