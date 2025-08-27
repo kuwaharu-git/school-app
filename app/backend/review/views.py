@@ -13,18 +13,17 @@ from .serializers import (
     ReviewCreateSerializer,
 )
 from .permissions import IsAuthorOrReadOnly, IsReviewerOrReadOnly
+from rest_framework.permissions import IsAuthenticated
 
 
+# 認証済みユーザー用: 全プロジェクト（公開＋自分の非公開）
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
-    permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        user = self.request.user
         qs = Project.objects.all()
-        if user and user.is_authenticated:
-            return qs.filter(models.Q(is_public=True) | models.Q(author=user))
-        return qs.filter(is_public=True)
+        return qs
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -37,17 +36,29 @@ class ProjectViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
     def perform_update(self, serializer):
-        # プロジェクト更新時も作者は変更されない
         serializer.save()
 
     def perform_destroy(self, instance):
-        # プロジェクト削除（関連するレビューも CASCADE で削除される）
         instance.delete()
+
+
+# ゲスト用: 公開プロジェクトのみ
+class PublicProjectViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Project.objects.filter(is_public=True)
+    authentication_classes = []
+    permission_classes = [IsAuthorOrReadOnly]
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return ProjectListSerializer
+        if self.action == "retrieve":
+            return ProjectDetailSerializer
+        return ProjectCreateUpdateSerializer
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.select_related("project", "reviewer").all()
-    permission_classes = [IsReviewerOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         queryset = Review.objects.select_related("project", "reviewer").all()
@@ -72,3 +83,26 @@ class ReviewViewSet(viewsets.ModelViewSet):
         review = serializer.save()
         out_serializer = ReviewSerializer(review, context={"request": request})
         return Response(out_serializer.data, status=status.HTTP_201_CREATED)
+
+
+class PublicReviewViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+):
+    """
+    公開レビュー用のビューセット。レビューの一覧表示と詳細表示を提供します。
+    """
+
+    queryset = Review.objects.select_related("project", "reviewer").all()
+    authentication_classes = []
+    permission_classes = [IsReviewerOrReadOnly]
+
+    def get_queryset(self):
+        """
+        公開されているプロジェクトに関連するレビューのみを返します。
+        """
+        return self.queryset.filter(project__is_public=True)
+
+    def get_serializer_class(self):
+        return ReviewSerializer
