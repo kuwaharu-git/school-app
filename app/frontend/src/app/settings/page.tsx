@@ -65,7 +65,7 @@ export default function SettingsPage() {
     setIsDeleting(true)
     setError(null)
     try {
-      await noRedirectCustomAxios.delete("/api/users/delete")
+      await noRedirectCustomAxios.delete("/api/users/delete_user")
       toast.success("アカウントを削除しました")
       window.location.href = "/"
     } catch (err) {
