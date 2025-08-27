@@ -1,0 +1,47 @@
+services:
+  django:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: django
+    volumes:
+      - ./backend:/app
+    working_dir: /app
+    command: >
+      sh -c "./wait-for-it.sh mysql:3306 -- python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
+    env_file: .env
+    depends_on:
+      - mysql
+
+  nextjs:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: nextjs
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    working_dir: /app
+    command: npm run dev
+    ports:
+      - "3000:3000"
+
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER:-appuser}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-apppass}
+    command: ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    volumes:
+      - dev-mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+volumes:
+  dev-mysql-data:
