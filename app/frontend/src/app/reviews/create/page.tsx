@@ -146,9 +146,10 @@ export default function CreateProject() {
                   </label>
                   <Input
                     type="url"
+                    autoComplete="off"
                     value={repositoryUrl}
                     onChange={(e) => setRepositoryUrl(e.target.value)}
-                    placeholder="https://github.com/username/repository"
+                    placeholder="https://github.com/user-name/repository"
                   />
                 </div>
 
