@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Menu, User, UserPlus, LogOut, Settings, HelpCircle } from "lucide-react"
+import { Menu, User, UserPlus, LogOut, Settings, HelpCircle, Home } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -38,10 +38,12 @@ export function Header({ username }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex flex-col items-center" style={{ paddingLeft: "5%", paddingRight: "5%" }}>
       <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-2">
-          <User className="h-5 w-5" />
-          <span className="font-medium">{username ? username : "ゲスト"}</span>
-        </div>
+        <Link href="/home">
+          <div className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              <span className="font-medium">{username ? username : "ゲスト"}</span>
+          </div>
+        </Link>
 
         {/* モバイル用ハンバーガーメニュー */}
         <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
@@ -57,6 +59,7 @@ export function Header({ username }: HeaderProps) {
             <div className="mt-6 flex flex-col gap-4">
               <SheetClose asChild>
                 <Link href="/home" className="flex items-center gap-2 px-2 py-1 hover:underline">
+                  <Home className="h-4 w-4" />
                   <span>ホーム</span>
                 </Link>
               </SheetClose>
@@ -119,7 +122,11 @@ export function Header({ username }: HeaderProps) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
-              <Link href="/home">ホーム</Link>
+
+              <Link href="/home">
+                <Home className="mr-2 h-4 w-4" />
+                <span>ホーム</span>
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href="/settings">
