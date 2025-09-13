@@ -196,8 +196,8 @@ SIMPLE_JWT = {
     "UPDATE_LAST_LOGIN": True,
 }
 
-# Cookieの有効期限に使用する
-COOKIE_TIME = 60 * 60 * 12
+# Cookieの有効期限に使用する (REFRESH_TOKEN_LIFETIMEに合わせる)
+COOKIE_TIME = 60 * 60 * 24 * 30  # 30日 = 2592000秒
 
 CSRF_TRUSTED_ORIGINS = [
     "https://school.kuwaharu.com",
