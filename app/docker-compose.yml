@@ -38,7 +38,7 @@ services:
       - django
 
   mysql:
-    image: mysql:8
+    image: mysql:8.0
     container_name: mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
