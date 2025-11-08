@@ -20,9 +20,7 @@ type Project = {
   description: string
   repository_url?: string
   live_url?: string
-  ogp_image_url?: string
   is_public: boolean
-  cached_average_rating: string
   cached_reviewer_count: number
   created_at: string
   author: {
@@ -35,7 +33,6 @@ type Project = {
 type Review = {
   id: number
   reviewer_name_snapshot: string
-  rating: number
   comment: string
   created_at: string
   reviewer?: {
@@ -55,7 +52,6 @@ export default function ProjectDetail({ params }: { params: Promise<{ id: string
 
   // review form state
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
-  const [rating, setRating] = useState<number>(5)
   const [comment, setComment] = useState<string>("")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -113,7 +109,7 @@ export default function ProjectDetail({ params }: { params: Promise<{ id: string
     if (!project) return
     setIsSubmitting(true)
     try {
-      const payload = { project: project.id, rating, comment }
+      const payload = { project: project.id, comment }
       const res: AxiosResponse = await customAxios.post("/api/review/reviews/", payload)
       // add or replace existing review by same reviewer
       const created: Review = res.data
@@ -227,7 +223,6 @@ export default function ProjectDetail({ params }: { params: Promise<{ id: string
                 </div>
                 
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <span>評価: {project.cached_average_rating}</span>
                   <span>レビュー数: {project.cached_reviewer_count}</span>
                   {!project.is_public && (
                     <span className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded">非公開</span>
@@ -245,23 +240,9 @@ export default function ProjectDetail({ params }: { params: Promise<{ id: string
           </CardHeader>
           <CardContent>
             <form onSubmit={submitReview}>
-              <div className="flex items-center gap-4 mb-3">
-                <label className="text-sm font-medium">評価</label>
-                <select
-                  value={String(rating)}
-                  onChange={(e) => setRating(Number(e.target.value))}
-                  className="border-input rounded-md px-2 py-1"
-                >
-                  <option value={5}>5</option>
-                  <option value={4}>4</option>
-                  <option value={3}>3</option>
-                  <option value={2}>2</option>
-                  <option value={1}>1</option>
-                </select>
-              </div>
 
               <div className="mb-3">
-                <Textarea value={comment} onChange={(e) => setComment(e.target.value)} placeholder="レビューの本文（任意）" />
+                <Textarea value={comment} onChange={(e) => setComment(e.target.value)} placeholder="レビューの本文" />
               </div>
 
               <div className="flex items-center gap-2">
@@ -293,10 +274,6 @@ export default function ProjectDetail({ params }: { params: Promise<{ id: string
                 <div className="flex justify-between items-start mb-2">
                   <div className="text-sm font-medium">
                     {r.reviewer_name_snapshot}
-                    <span className="ml-2 text-yellow-500">
-                      {'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}
-                    </span>
-                    <span className="ml-1 text-muted-foreground">({r.rating}/5)</span>
                   </div>
                   <div className="text-xs text-muted-foreground">
                     {new Date(r.created_at).toLocaleDateString('ja-JP')}

@@ -25,7 +25,6 @@ export default function CreateProject() {
   const [description, setDescription] = useState("")
   const [repositoryUrl, setRepositoryUrl] = useState("")
   const [liveUrl, setLiveUrl] = useState("")
-  const [ogpImageUrl, setOgpImageUrl] = useState("")
   const [isPublic, setIsPublic] = useState(true)
 
   useEffect(() => {
@@ -59,7 +58,6 @@ export default function CreateProject() {
         description: description.trim(),
         repository_url: repositoryUrl.trim() || null,
         live_url: liveUrl.trim() || null,
-        ogp_image_url: ogpImageUrl.trim() || null,
         is_public: isPublic,
       }
 
@@ -165,20 +163,6 @@ export default function CreateProject() {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    プレビュー画像URL
-                  </label>
-                  <Input
-                    type="url"
-                    value={ogpImageUrl}
-                    onChange={(e) => setOgpImageUrl(e.target.value)}
-                    placeholder="https://example.com/image.jpg"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    プロジェクトのスクリーンショットやロゴ画像のURL
-                  </p>
-                </div>
 
                 <div className="flex items-center gap-2">
                   <input

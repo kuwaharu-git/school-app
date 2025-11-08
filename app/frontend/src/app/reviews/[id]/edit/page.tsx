@@ -20,7 +20,6 @@ type Project = {
   description: string
   repository_url?: string
   live_url?: string
-  ogp_image_url?: string
   is_public: boolean
   author: {
     id: number
@@ -44,7 +43,6 @@ export default function EditProject({ params }: { params: Promise<{ id: string }
   const [description, setDescription] = useState("")
   const [repositoryUrl, setRepositoryUrl] = useState("")
   const [liveUrl, setLiveUrl] = useState("")
-  const [ogpImageUrl, setOgpImageUrl] = useState("")
   const [isPublic, setIsPublic] = useState(true)
 
   useEffect(() => {
@@ -76,7 +74,6 @@ export default function EditProject({ params }: { params: Promise<{ id: string }
         setDescription(projectData.description || "")
         setRepositoryUrl(projectData.repository_url || "")
         setLiveUrl(projectData.live_url || "")
-        setOgpImageUrl(projectData.ogp_image_url || "")
         setIsPublic(projectData.is_public)
       } catch (err: unknown) {
         if ((err as AxiosError).response?.status === 404) {
@@ -112,7 +109,6 @@ export default function EditProject({ params }: { params: Promise<{ id: string }
         description: description.trim(),
         repository_url: repositoryUrl.trim() || null,
         live_url: liveUrl.trim() || null,
-        ogp_image_url: ogpImageUrl.trim() || null,
         is_public: isPublic,
       }
 
@@ -234,21 +230,6 @@ export default function EditProject({ params }: { params: Promise<{ id: string }
                     onChange={(e) => setLiveUrl(e.target.value)}
                     placeholder="https://example.com"
                   />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    プレビュー画像URL
-                  </label>
-                  <Input
-                    type="url"
-                    value={ogpImageUrl}
-                    onChange={(e) => setOgpImageUrl(e.target.value)}
-                    placeholder="https://example.com/image.jpg"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    プロジェクトのスクリーンショットやロゴ画像のURL
-                  </p>
                 </div>
 
                 <div className="flex items-center gap-2">
