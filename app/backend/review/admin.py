@@ -9,7 +9,6 @@ class ProjectAdmin(admin.ModelAdmin):
         "title",
         "author",
         "is_public",
-        "cached_average_rating",
         "cached_reviewer_count",
         "created_at",
     )
@@ -24,9 +23,7 @@ class ReviewAdmin(admin.ModelAdmin):
         "id",
         "project",
         "reviewer_name_snapshot",
-        "rating",
         "created_at",
     )
     search_fields = ("reviewer_name_snapshot", "comment", "project__title")
-    list_filter = ("rating",)
     raw_id_fields = ("project", "reviewer")
