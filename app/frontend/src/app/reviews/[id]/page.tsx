@@ -176,19 +176,6 @@ export default function ProjectDetail({ params }: { params: Promise<{ id: string
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {project.ogp_image_url && (
-                  <div className="relative w-full max-w-2xl h-80 rounded-lg overflow-hidden border">
-                    <Image
-                      src={project.ogp_image_url}
-                      alt={`${project.title}のプレビュー画像`}
-                      fill
-                      className="object-contain"
-                      onError={(e) => {
-                        e.currentTarget.parentElement?.classList.add('hidden')
-                      }}
-                    />
-                  </div>
-                )}
                 
                 {project.description && (
                   <div>
