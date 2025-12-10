@@ -156,7 +156,7 @@ export default function ReviewsPage() {
                   <CardFooter className="flex-col items-start gap-2">
                     <div className="flex justify-between items-center w-full">
                       <div className="text-sm text-muted-foreground">
-                        評価: {p.cached_reviewer_count}件
+                        {p.cached_reviewer_count}件のレビュー
                       </div>
                       {!p.is_public && (
                         <span className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded">非公開</span>
