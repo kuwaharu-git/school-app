@@ -69,7 +69,11 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
         # update existing review if present, otherwise create
         defaults = {
             "comment": validated_data.get("comment", ""),
-            "reviewer_name_snapshot": getattr(user, "display_name", None),
+            "reviewer_name_snapshot": (
+                getattr(user, "display_name", None)
+                or getattr(user, "full_name", None)
+                or getattr(user, "username", "")
+            ),
             "reviewer": user,
         }
         obj, created = Review.objects.update_or_create(
