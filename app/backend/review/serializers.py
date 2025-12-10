@@ -66,7 +66,6 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = self.context["request"].user
         project = validated_data.pop("project")
-        # update existing review if present, otherwise create
         defaults = {
             "comment": validated_data.get("comment", ""),
             "reviewer_name_snapshot": (
@@ -96,6 +95,7 @@ class ProjectListSerializer(serializers.ModelSerializer):
             "is_public",
             "cached_reviewer_count",
             "created_at",
+            "updated_at",
         )
         read_only_fields = ("cached_reviewer_count",)
 
