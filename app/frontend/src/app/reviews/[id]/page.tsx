@@ -22,6 +22,7 @@ type Project = {
   is_public: boolean
   cached_reviewer_count: number
   created_at: string
+  updated_at: string
   author: {
     id: number
     username: string
@@ -34,6 +35,7 @@ type Review = {
   reviewer_name_snapshot: string
   comment: string
   created_at: string
+  updated_at: string
   reviewer?: {
     id: number
     username: string
@@ -164,6 +166,7 @@ export default function ProjectDetail({ params }: { params: Promise<{ id: string
                   <CardDescription className="space-y-1">
                     <div>作者: {project.author.display_name || project.author.username}</div>
                     <div className="text-xs">作成日: {new Date(project.created_at).toLocaleDateString('ja-JP')}</div>
+                    <div className="text-xs">更新日: {new Date(project.updated_at).toLocaleDateString('ja-JP')}</div>
                   </CardDescription>
                 </div>
                 {isAuthenticated && username && project.author.username === username && (
@@ -265,7 +268,7 @@ export default function ProjectDetail({ params }: { params: Promise<{ id: string
                     {r.reviewer_name_snapshot}
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    {new Date(r.created_at).toLocaleDateString('ja-JP')}
+                    {new Date(r.updated_at).toLocaleDateString('ja-JP')}
                   </div>
                 </div>
                 {r.comment && (
