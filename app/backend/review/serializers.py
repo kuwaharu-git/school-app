@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import Project, Review
-from django.utils import timezone
 
 User = get_user_model()
 
@@ -79,10 +78,6 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
         obj, created = Review.objects.update_or_create(
             project=project, reviewer=user, defaults=defaults
         )
-        if not created:
-            # updated_atを手動で更新
-            obj.updated_at = timezone.now()
-            obj.save(update_fields=["updated_at"])
         return obj
 
 
