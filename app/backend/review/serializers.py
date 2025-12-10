@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import Project, Review
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -66,7 +67,6 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = self.context["request"].user
         project = validated_data.pop("project")
-        # update existing review if present, otherwise create
         defaults = {
             "comment": validated_data.get("comment", ""),
             "reviewer_name_snapshot": (
@@ -79,6 +79,10 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
         obj, created = Review.objects.update_or_create(
             project=project, reviewer=user, defaults=defaults
         )
+        if not created:
+            # updated_atを手動で更新
+            obj.updated_at = timezone.now()
+            obj.save(update_fields=["updated_at"])
         return obj
 
 
@@ -96,6 +100,7 @@ class ProjectListSerializer(serializers.ModelSerializer):
             "is_public",
             "cached_reviewer_count",
             "created_at",
+            "updated_at",
         )
         read_only_fields = ("cached_reviewer_count",)
 
