@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import { customAxios, noRedirectCustomAxios } from "@/lib/customAxios"
 import { AxiosResponse, AxiosError } from "axios"
 import { Button } from "@/components/ui/button"
