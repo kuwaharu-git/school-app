@@ -106,7 +106,10 @@ export default function ProjectDetail({ params }: { params: Promise<{ id: string
   const submitReview = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!project) return
-    setIsSubmitting(true)
+    if (!comment.trim()) {
+      toast.error("レビューの本文を入力してください")
+      return
+    }
     try {
       const payload = { project: project.id, comment }
       const res: AxiosResponse = await customAxios.post("/api/review/reviews/", payload)
