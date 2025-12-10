@@ -18,14 +18,10 @@ class Project(models.Model):
     description = models.TextField(blank=True)
     repository_url = models.URLField(max_length=2000, null=True, blank=True)
     live_url = models.URLField(max_length=2000, null=True, blank=True)
-    ogp_image_url = models.URLField(max_length=2000, null=True, blank=True)
     is_public = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     cached_reviewer_count = models.IntegerField(default=0)
-    cached_average_rating = models.DecimalField(
-        max_digits=3, decimal_places=2, default=Decimal("0.00")
-    )
 
     class Meta:
         ordering = ["-created_at"]
@@ -40,16 +36,12 @@ class Project(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
-    def update_cached_rating(self):
-        agg = self.reviews.aggregate(avg=Avg("rating"), cnt=Count("id"))
-        avg = agg["avg"] or 0
+    def update_cached(self):
+        agg = self.reviews.aggregate(cnt=Count("id"))
         cnt = agg["cnt"] or 0
-        # Decimal として保存
-        self.cached_average_rating = Decimal(str(round(avg or 0, 2)))
         self.cached_reviewer_count = cnt
         # avoid recursive signals by saving only these fields
         Project.objects.filter(pk=self.pk).update(
-            cached_average_rating=self.cached_average_rating,
             cached_reviewer_count=self.cached_reviewer_count,
         )
 
@@ -68,10 +60,7 @@ class Review(models.Model):
     reviewer_name_snapshot = models.CharField(
         max_length=255, default="削除されたユーザ"
     )
-    rating = models.PositiveSmallIntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(5)]
-    )
-    comment = models.TextField(blank=True)
+    comment = models.TextField(blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -93,7 +82,7 @@ class Review(models.Model):
             if self.reviewer_id
             else "削除されたユーザ"
         )
-        return f"{self.project.title} - {name} ({self.rating})"
+        return f"{self.project.title} - {name}"
 
     def save(self, *args, **kwargs):
         # ensure reviewer_name_snapshot is set when reviewer exists
@@ -123,7 +112,7 @@ def on_review_saved(sender, instance, created, **kwargs):
         project = Project.objects.get(pk=project_id)
     except Project.DoesNotExist:
         return
-    project.update_cached_rating()
+    project.update_cached()
 
 
 @receiver(post_delete, sender=Review)
@@ -135,7 +124,7 @@ def on_review_deleted(sender, instance, **kwargs):
         project = Project.objects.get(pk=project_id)
     except Project.DoesNotExist:
         return
-    project.update_cached_rating()
+    project.update_cached()
 
 
 # ユーザ削除時に関連レビューを匿名化する

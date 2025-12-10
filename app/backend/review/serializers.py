@@ -30,7 +30,6 @@ class ReviewSerializer(serializers.ModelSerializer):
             "project",
             "reviewer",
             "reviewer_name_snapshot",
-            "rating",
             "comment",
             "created_at",
             "updated_at",
@@ -50,7 +49,7 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = ("id", "project", "rating", "comment")
+        fields = ("id", "project", "comment")
 
     def validate(self, attrs):
         request = self.context.get("request")
@@ -69,11 +68,12 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
         project = validated_data.pop("project")
         # update existing review if present, otherwise create
         defaults = {
-            "rating": validated_data.get("rating"),
             "comment": validated_data.get("comment", ""),
-            "reviewer_name_snapshot": getattr(user, "display_name", None)
-            or getattr(user, "full_name", None)
-            or getattr(user, "username", ""),
+            "reviewer_name_snapshot": (
+                getattr(user, "display_name", None)
+                or getattr(user, "full_name", None)
+                or getattr(user, "username", "")
+            ),
             "reviewer": user,
         }
         obj, created = Review.objects.update_or_create(
@@ -93,13 +93,11 @@ class ProjectListSerializer(serializers.ModelSerializer):
             "author",
             "repository_url",
             "live_url",
-            "ogp_image_url",
             "is_public",
             "cached_reviewer_count",
-            "cached_average_rating",
             "created_at",
         )
-        read_only_fields = ("cached_reviewer_count", "cached_average_rating")
+        read_only_fields = ("cached_reviewer_count",)
 
 
 class ProjectDetailSerializer(ProjectListSerializer):
@@ -120,7 +118,6 @@ class ProjectCreateUpdateSerializer(serializers.ModelSerializer):
             "description",
             "repository_url",
             "live_url",
-            "ogp_image_url",
             "is_public",
         )
 
