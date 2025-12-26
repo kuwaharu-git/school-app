@@ -21,6 +21,12 @@ services:
     env_file: .env
     depends_on:
       - mysql
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sSf http://localhost:8000/admin/login/ >/dev/null || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 20s
 
   nextjs:
     build:
@@ -35,7 +41,8 @@ services:
     expose:
       - "3000"
     depends_on:
-      - django
+      django:
+        condition: service_healthy
 
   mysql:
     image: mysql:8.4.6
