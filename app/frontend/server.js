@@ -48,6 +48,8 @@ function formatLogEntry(req, res, duration) {
 
 /**
  * Write log entry to file
+ * Note: Using synchronous write for simplicity and reliability.
+ * For high-traffic scenarios, consider implementing buffered async writes.
  */
 function writeLog(logEntry) {
   try {

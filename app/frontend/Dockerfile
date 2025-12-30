@@ -16,10 +16,15 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 # Install supercronic for cron jobs (Alpine)
+# Checksum from https://github.com/aptible/supercronic/releases/tag/v0.2.29
 RUN apk add --no-cache curl && \
     curl -fsSL https://github.com/aptible/supercronic/releases/download/v0.2.29/supercronic-linux-amd64 \
-    -o /usr/local/bin/supercronic && \
-    chmod +x /usr/local/bin/supercronic
+    -o /tmp/supercronic && \
+    echo "cd48d45c4b10f3f0bfdd3a57d054cd05ac96812b supercronic" > /tmp/supercronic.sha1 && \
+    cd /tmp && sha1sum -c supercronic.sha1 && \
+    mv /tmp/supercronic /usr/local/bin/supercronic && \
+    chmod +x /usr/local/bin/supercronic && \
+    rm /tmp/supercronic.sha1
 
 # Run as non-root
 RUN addgroup -g 1001 -S nodegrp && adduser -S nodeusr -G nodegrp
@@ -44,5 +49,7 @@ RUN echo "0 0 * * * /app/rotate-logs.sh >> /var/log/nextjs/rotation.log 2>&1" > 
 EXPOSE 3000
 USER nodeusr
 
-# Start supercronic in background and then start the server
+# Start supercronic in background for log rotation, then start the Node.js server
+# Note: For production deployments with high availability requirements,
+# consider using a process supervisor or container orchestration
 CMD supercronic /app/crontab & npm run start

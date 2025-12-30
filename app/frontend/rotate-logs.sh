@@ -16,11 +16,10 @@ if [ -f "${LOG_FILE}" ] && [ -s "${LOG_FILE}" ]; then
     TIMESTAMP=$(date +%Y%m%d_%H%M%S)
     ARCHIVE_FILE="${ARCHIVE_DIR}/access_${TIMESTAMP}.log"
     
-    # Copy current log to archive
-    cp "${LOG_FILE}" "${ARCHIVE_FILE}"
-    
-    # Truncate current log file
-    : > "${LOG_FILE}"
+    # Atomically move current log to archive and create new empty log
+    # This prevents race conditions where logs could be lost during rotation
+    mv "${LOG_FILE}" "${ARCHIVE_FILE}"
+    touch "${LOG_FILE}"
     
     echo "$(date '+%Y-%m-%d %H:%M:%S') - Log rotated: ${ARCHIVE_FILE}"
     
