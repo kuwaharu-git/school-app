@@ -24,6 +24,7 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+      - dev-nextjs-logs:/var/log/nextjs
     working_dir: /app
     command: npm run dev
     ports:
@@ -45,3 +46,4 @@ services:
 
 volumes:
   dev-mysql-data:
+  dev-nextjs-logs:

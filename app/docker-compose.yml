@@ -40,6 +40,8 @@ services:
       - "3000:3000"
     expose:
       - "3000"
+    volumes:
+      - nextjs-logs:/var/log/nextjs
     depends_on:
       django:
         condition: service_healthy
@@ -73,3 +75,4 @@ networks:
 
 volumes:
   mysql-data:
+  nextjs-logs:
