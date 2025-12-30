@@ -173,6 +173,25 @@ APIの詳細仕様については以下をご参照ください：
 - `GET /api/profiles/{id}/` - 特定プロフィール取得
 - `PUT /api/profiles/{id}/` - プロフィール更新
 
+## 📊 アクセスログとセキュリティ監査
+
+Next.jsコンテナは全てのHTTPリクエストをログファイルに記録します。セキュリティ検査や監査のために、最大7日分のアクセスログを取得できます。
+
+### ログの取得方法
+
+```bash
+# 現在のアクセスログを表示
+docker compose exec nextjs cat /var/log/nextjs/access.log
+
+# リアルタイムでログを監視
+docker compose exec nextjs tail -f /var/log/nextjs/access.log
+
+# ログをホストにコピー
+docker compose cp nextjs:/var/log/nextjs/access.log ./access.log
+```
+
+詳細な使用方法とセキュリティ検査の例については [docs/nextjs_access_logs.md](docs/nextjs_access_logs.md) をご覧ください。
+
 ## 🧪 テスト
 
 ```bash
