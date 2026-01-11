@@ -23,7 +23,7 @@ services:
     container_name: nextjs
     volumes:
       - ./frontend:/app
-      - /app/node_modules
+      - nextjs-node-modules:/app/node_modules
     working_dir: /app
     command: npm run dev
     ports:
@@ -45,3 +45,4 @@ services:
 
 volumes:
   dev-mysql-data:
+  nextjs-node-modules:
